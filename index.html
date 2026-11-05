@@ -82,7 +82,26 @@ h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold
 .res:focus-visible,.qa:focus-visible,.deptcard:focus-visible,nav.rail a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .res .t{font-weight:600;font-size:14.5px;line-height:1.3;overflow-wrap:anywhere}
 .res .m{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
-.type{flex:none;width:34px;height:34px;border-radius:6px;display:grid;place-items:center;font:700 10.5px var(--sans);letter-spacing:.04em;color:#fff}
+.type{flex:none;width:34px;height:34px;border-radius:6px;display:grid;place-items:center;color:#fff}
+.type svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.type.sm{width:26px;height:26px;border-radius:5px}.type.sm svg{width:15px;height:15px}
+.fold{flex-direction:column;align-items:stretch;gap:0;padding:0;cursor:default}
+.fold>.fhead{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:none;border:0;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;border-radius:7px}
+.fold>.fhead:hover{background:var(--chip)}
+.ftog{font:600 12px var(--sans);color:var(--muted);white-space:nowrap}
+.fold.open{grid-column:1/-1;border-color:var(--gold)}
+.fkids{border-top:1px solid var(--line);padding:6px 8px 10px;display:flex;flex-direction:column;gap:2px}
+.fkids .fk{display:flex;gap:8px;align-items:center;padding:5px 6px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:14px;background:none;border:0;font:inherit;text-align:left;cursor:pointer;width:100%;min-width:0}
+.fkids .fk:hover{background:var(--chip)}
+.fkids .fk span.nm{overflow-wrap:anywhere;min-width:0}
+.fkids .sub{margin-left:18px;border-left:2px solid var(--line);padding-left:6px}
+.fkids .fmore{display:flex;gap:12px;flex-wrap:wrap;padding:6px 6px 0;font-size:13px}
+#pv{width:min(1100px,calc(100vw - 32px));height:calc(100dvh - 48px);max-height:none;display:none;flex-direction:column}
+#pv[open]{display:flex}
+#pv .pvh{display:flex;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+#pv .pvh b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+#pv iframe{flex:1;border:0;width:100%;background:#fff}
+#pv .pvnote{font-size:12.5px;color:var(--muted);padding:6px 14px;border-top:1px solid var(--line)}
 .ty-doc{background:#3B6FB6}.ty-sheet{background:#2E8A57}.ty-slides{background:#C98A1B}.ty-folder{background:#6B7686}.ty-form{background:#7A4FB0}.ty-pdf{background:#B3473E}.ty-web{background:#0B2A4A}.ty-video{background:#C0392B}.ty-soon{background:#A8A39A}
 .pill{font:600 11px var(--sans);letter-spacing:.03em;padding:2px 7px;border-radius:999px;background:var(--chip);color:var(--body)}
 .pill.reg{background:var(--gold-soft);color:var(--ink)}
@@ -216,6 +235,7 @@ dialog input,dialog select{width:100%}
   .qa{min-height:0}
   .toolbar .btn{margin-left:0;width:100%}
   dialog{width:100vw;max-width:100vw;max-height:100dvh;height:100dvh;border-radius:0;margin:0}
+  #pv{width:100vw;height:100dvh}
   .node{min-width:0;flex-basis:140px}
   .tier+.tier::before{display:none}
   .draftband{font-size:12.5px}
@@ -242,6 +262,7 @@ dialog input,dialog select{width:100%}
   <main id="main" tabindex="-1"></main>
 </div>
 <dialog id="dlg" aria-label="Edit item"></dialog>
+<dialog id="pv" aria-label="File preview"></dialog>
 
 <script>
 const DATA = {
@@ -266,22 +287,6 @@ const DATA = {
 {
 "t": "IV Handbook & Terms of Reference 2026 (DRAFT)",
 "k": "d:1lbvitpddhzydUwPYKEyDZniMu2e_DxjJ2d6-VViNJRA"
-},
-{
-"t": "ToR by Role 2026: Index (DRAFT)",
-"k": "d:1K851UdwxfweiiRvbAFBOizAO_paoMl6QOLV4TEr33pU"
-},
-{
-"t": "ToR by Role 2026: All Roles Combined (DRAFT)",
-"k": "d:1rxr-FndJYSqv1rHENcsbHLeLiPLvVe9QAarocBxtdC0"
-},
-{
-"t": "ToR by Role 2026: JK Director (DRAFT)",
-"k": "d:1wWEPkW7KCDfxtZMXMdtHSLqB2vbfjmSban6QWI5yCjg"
-},
-{
-"t": "ToR by Role 2026 folder, one doc per role (DRAFT)",
-"k": "F:1Zlxw_pLQzb7kOaZ_KBwiVTUHOGnoHE8t"
 },
 {
 "t": "VLO Presentations",
@@ -1709,7 +1714,39 @@ const FLAGS=[
  {sev:'info',st:'fixed',d:'iv',where:'Ismaili Volunteer',issue:'Handover set was not linked.',fix:'Done: handover docs moved into the hub ("00 Handover 2026").'}
 ];
 
-const TYPE={d:['doc','DOC'],s:['sheet','SHEET'],p:['slides','DECK'],F:['folder','FOLDER'],f:['pdf','FILE'],g:['form','FORM'],y:['video','VIDEO'],w:['web','WEB'],soon:['soon','SOON'],page:['web','PAGE'],h:['web','PAGE']};
+const TYPE={d:['doc','Doc'],s:['sheet','Sheet'],p:['slides','Deck'],F:['folder','Folder'],f:['pdf','File'],g:['form','Form'],y:['video','Video'],w:['web','Web link'],soon:['soon','Coming soon'],page:['web','Page'],h:['web','Page in the hub']};
+const ICON={doc:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',sheet:'<rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 10h16M4 15h16M10 4v16"/>',slides:'<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M12 17v3M8 20h8"/>',folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',pdf:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',form:'<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 8h1M11 8h5M8 12h1M11 12h5M8 16h1M11 16h5"/>',video:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>',web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>',soon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'};
+function badge(cls,lab,sm){return '<span class="type ty-'+cls+(sm?' sm':'')+'" role="img" aria-label="'+esc(lab)+'" title="'+esc(lab)+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+(ICON[cls]||ICON.web)+'</svg></span>'}
+const PVK={d:id=>'https://docs.google.com/document/d/'+id+'/preview',s:id=>'https://docs.google.com/spreadsheets/d/'+id+'/preview',p:id=>'https://docs.google.com/presentation/d/'+id+'/preview',f:id=>'https://drive.google.com/file/d/'+id+'/preview'};
+function kidUrl(k,id){return url(k+':'+id)}
+const FOLD={map:null,loading:false,err:false};
+function loadFolders(){if(FOLD.map||FOLD.loading||FOLD.err||!STORE.url||STORE.url.indexOf('__')===0)return;FOLD.loading=true;
+  fetch(STORE.url+'?only=folders&t='+Date.now(),{credentials:'omit'}).then(r=>r.json()).then(r=>{FOLD.loading=false;FOLD.map=(r&&r.folders)||{};render()}).catch(()=>{FOLD.loading=false;FOLD.err=true})}
+const OPEN=new Set();
+function showTitle(t){return String(t).replace(/\s*\((Rebranded )?DRAFT\)\s*$/,'')}
+function kidsHTML(fid,depth){
+  const f=FOLD.map&&FOLD.map[fid];if(!f)return '';
+  const K=f.k||[];if(!K.length)return '<div class="fk" style="cursor:default;color:var(--muted)">Empty folder</div>';
+  return K.map(([n,id,k])=>{const [cls,lab]=TYPE[k]||TYPE.f;
+    if(k==='F'){const sub=FOLD.map[id],op=OPEN.has(id);
+      if(!sub||depth>=4)return '<a class="fk" href="'+esc(kidUrl('F',id))+'" target="_blank" rel="noopener">'+badge(cls,lab,1)+'<span class="nm">'+esc(n)+'</span></a>';
+      return '<button class="fk" data-fold="'+esc(id)+'" aria-expanded="'+op+'">'+badge(cls,lab,1)+'<span class="nm">'+esc(n)+'</span><span class="ftog">'+(op?'▾':'▸')+' '+(sub.k||[]).length+'</span></button>'+(op?'<div class="sub">'+kidsHTML(id,depth+1)+'</div>':'');}
+    const pv=PVK[k]?' data-pv="'+k+':'+esc(id)+'" data-pvt="'+esc(n)+'"':'';
+    return '<a class="fk" href="'+esc(kidUrl(k,id))+'" target="_blank" rel="noopener"'+pv+'>'+badge(cls,lab,1)+'<span class="nm">'+esc(showTitle(n))+'</span></a>'}).join('');
+}
+function openPreview(k,id,title){
+  const pv=document.getElementById('pv');const drive=url(k+':'+id);
+  pv.innerHTML='<div class="pvh"><b>'+esc(title||'Preview')+'</b><a class="btn ghost" href="'+esc(drive)+'" target="_blank" rel="noopener">Open in Drive</a><button class="btn ghost" data-pvclose aria-label="Close preview">✕</button></div><iframe src="'+esc(PVK[k](id))+'" title="'+esc(title||'Preview')+'" allow="autoplay"></iframe><div class="pvnote">Preview from Google Drive. If it asks for access, you aren’t on that file yet: use Open in Drive to request it.</div>';
+  if(pv.showModal)pv.showModal();else pv.setAttribute('open','');
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-pvclose]')){const pv=document.getElementById('pv');pv.close?pv.close():pv.removeAttribute('open');pv.innerHTML='';return}
+  const p=e.target.closest('[data-pv]');
+  if(p&&!(e.metaKey||e.ctrlKey||e.shiftKey||e.button===1)){e.preventDefault();const [k,id]=p.dataset.pv.split(':');openPreview(k,id,p.dataset.pvt);return}
+  const fo=e.target.closest('[data-fold]');
+  if(fo){e.preventDefault();const id=fo.dataset.fold;OPEN.has(id)?OPEN.delete(id):OPEN.add(id);render();return}
+});
+document.addEventListener('close',e=>{if(e.target.id==='pv')e.target.innerHTML=''},true);
 const MIXC={doc:'#3B6FB6',sheet:'#2E8A57',slides:'#C98A1B',folder:'#6B7686',form:'#7A4FB0',pdf:'#B3473E',web:'#0B2A4A',video:'#C0392B',soon:'#A8A39A'};
 function url(k){
   const i=k.indexOf(':');const c=k.slice(0,i),id=k.slice(i+1);
@@ -1785,7 +1822,13 @@ function resCard(x){
   if(x.restricted)pills.push('<span class="pill crit">Restricted</span>');
   if(x.noaccess)pills.push('<span class="pill crit" title="The file owner has not shared this file. Ask them for access.">Access needed</span>');
   if(x.note)pills.push('<span class="pill">'+esc(x.note)+'</span>');
-  const inner='<span class="type ty-'+cls+'">'+lab+'</span><span style="min-width:0"><span class="t">'+esc(x.t)+'</span>'+(pills.length?'<span class="m">'+pills.join('')+'</span>':'')+(x.why?'<span class="m" style="color:var(--muted);font-size:13px">'+esc(x.why)+'</span>':'')+'</span>';
+  const body='<span style="min-width:0;flex:1"><span class="t">'+esc(showTitle(x.t))+'</span>'+(pills.length?'<span class="m">'+pills.join('')+'</span>':'')+(x.why?'<span class="m" style="color:var(--muted);font-size:13px">'+esc(x.why)+'</span>':'')+'</span>';
+  const inner=badge(cls,lab)+body;
+  const fid=k==='F'&&x.k.slice(2);
+  if(fid&&FOLD.map&&FOLD.map[fid]){const op=OPEN.has(fid),n=(FOLD.map[fid].k||[]).length;
+    return '<div class="res fold'+(op?' open':'')+'"><button class="fhead" data-fold="'+esc(fid)+'" aria-expanded="'+op+'">'+badge(cls,lab)+body+'<span class="ftog">'+(op?'▾ Hide':'▸ '+n+' item'+(n===1?'':'s'))+'</span></button>'+(op?'<div class="fkids">'+kidsHTML(fid,1)+'<div class="fmore"><a href="'+esc(u)+'" target="_blank" rel="noopener">Open folder in Drive</a></div></div>':'')+'</div>';}
+  const pvA=PVK[k]&&u?' data-pv="'+x.k+'" data-pvt="'+esc(showTitle(x.t))+'"':'';
+  if(pvA&&u)return '<a class="res" href="'+esc(u)+'" target="_blank" rel="noopener"'+pvA+'>'+inner+'</a>';
   return u?'<a class="res" href="'+esc(u)+'"'+(u.charAt(0)==='#'?'':' target="_blank" rel="noopener"')+'>'+inner+'</a>':'<div class="res" aria-disabled="true">'+inner+'</div>';
 }
 function inRegion(x){return !state.region||!x.reg||x.reg===state.region}
@@ -1839,7 +1882,8 @@ function viewDept(d){
   h+='<div class="stats"><div class="stat"><b>'+deptItems(d.id).length+'</b><span>resources</span></div><div class="stat"><b>'+order.length+'</b><span>sections</span></div><div class="stat"><b>'+deptItems(d.id).filter(x=>kindOf(x.k)==='g').length+'</b><span>forms</span></div><div class="stat'+(flagsFor(d.id).length?' alert':'')+'"><b>'+flagsFor(d.id).length+'</b><span>to fix</span></div></div>';
   if(state.region&&mine.length)h+='<div class="section"><div class="shead"><h2>'+RN[state.region]+' region</h2><span class="pill reg">Your region</span></div><div class="list">'+mine.map(resCard).join('')+'</div></div>';
   else if(!state.region&&deptItems(d.id).some(x=>x.regional))h+='<div class="callout">This department has region-specific trackers. Pick a region at the top to see them here.</div>';
-  for(const s of order)h+='<div class="section"><div class="shead"><h2>'+esc(s)+'</h2><span class="cnt" style="color:var(--muted);font-size:13px">'+secs[s].length+'</span></div><div class="list">'+secs[s].map(resCard).join('')+'</div></div>';
+  for(const s of order){h+='<div class="section"><div class="shead"><h2>'+esc(s)+'</h2><span class="cnt" style="color:var(--muted);font-size:13px">'+secs[s].length+'</span></div><div class="list">'+secs[s].map(resCard).join('')+'</div></div>';
+    if(d.id==='iv'&&/^Onboarding/.test(s)){loadStore();const T=torList();h+='<div class="section" id="tors"><div class="shead"><h2>Roles &amp; ToRs</h2><a href="#tor" style="font-size:13px">Search or read all on one page →</a></div><p class="hint">DRAFT. From the 2026 Handbook, updated daily. Tap a role to read its ToR here.</p>'+['Regional','Jamatkhana'].map(lv=>{const G=T.filter(r=>r.level===lv);return G.length?'<h4 style="margin:10px 0 6px;font:700 13px var(--sans);color:var(--muted);text-transform:uppercase;letter-spacing:.08em">'+lv+' · '+G.length+'</h4><div class="list">'+G.map(torCard).join('')+'</div>':''}).join('')+'</div>'}}
   if(gaps.length)h+='<div class="section"><div class="shead"><h2>In the Drive, not on the dashboard</h2><span class="pill warn">Suggested additions</span></div><div class="list">'+gaps.map(g=>resCard(Object.assign({},g,{reg:null}))).join('')+'</div></div>';
   const fl=flagsFor(d.id);
   if(fl.length)h+='<div class="section"><div class="shead"><h2>To fix</h2></div><div class="tablewrap"><table><thead><tr><th>Issue</th><th>Where</th><th>Fix</th></tr></thead><tbody>'+fl.map(f=>'<tr><td><span class="sev '+f.sev+'"></span>'+esc(f.issue)+'</td><td>'+esc(f.where)+'</td><td>'+esc(f.fix)+'</td></tr>').join('')+'</tbody></table></div></div>';
@@ -2096,6 +2140,7 @@ document.addEventListener('input',e=>{
 
 // ===== Roles & ToRs (from the IV Handbook & TOR 2026; refreshed daily into the store) =====
 function torList(){const live=items('tor').filter(x=>!x.meta&&Array.isArray(x.blocks));return live.length?live.slice().sort((a,b)=>String(a.n).localeCompare(String(b.n))):TOR_SNAP}
+function torCard(r){const rp=torReports(r);return '<a class="res" href="#tor/'+esc(torSlug(r))+'"><span class="rn">'+esc(r.n)+'</span><span style="min-width:0"><span class="t">'+esc(r.name)+'</span>'+(rp?'<small style="display:block;color:var(--muted);font-size:13px;margin-top:2px">Reports to '+esc(rp)+'</small>':'')+'<span class="m"><span class="pill reg">'+esc(r.applies)+'</span></span></span></a>'}
 function torMeta(){return items('tor').find(x=>x.meta)||null}
 function torSlug(r){return String(r.id||'').replace(/^tor-/,'')}
 function torDoc(r){return r.doc||TOR_LINKS.docs[torSlug(r)]||''}
@@ -2108,7 +2153,7 @@ function viewTor(sub){
   loadStore();
   const L=torList(),m=torMeta();
   const src=L===TOR_SNAP?'Saved copy.':(m&&m.synced?'Updated '+esc(new Date(m.synced).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}))+'.':'');
-  let h='<h3>Roles</h3><h1>Role ToRs</h1><p class="lede">DRAFT. From the 2026 Handbook, updated daily. To change a ToR, edit the Handbook.'+(src?' <span style="color:var(--muted);font-size:13.5px">'+src+'</span>':'')+'</p>';
+  let h='<h3><a href="#iv" style="color:inherit">Ismaili Volunteers</a> › Roles &amp; ToRs</h3><h1>Role ToRs</h1><p class="lede">DRAFT. From the 2026 Handbook, updated daily. To change a ToR, edit the Handbook.'+(src?' <span style="color:var(--muted);font-size:13.5px">'+src+'</span>':'')+'</p>';
   h+='<div class="tabs" role="tablist"><a role="tab" href="#tor" aria-selected="'+(sub!=='all')+'">By role</a><a role="tab" href="#tor/all" aria-selected="'+(sub==='all')+'">All on one page</a></div>';
   if(sub&&sub!=='all'){
     const r=L.find(x=>torSlug(x)===sub);
@@ -2129,7 +2174,7 @@ function viewTor(sub){
   const M=L.filter(r=>(!lvF||r.level===lvF)&&(!q||(r.name+' '+r.group+' '+(r.blocks||[]).map(b=>b.x||(b.r||[]).map(x=>x[0]).join('')).join(' ')).toLowerCase().includes(q)));
   if(!M.length)return h+'<p class="empty">No role matches.</p>';
   for(const lv of ['Regional','Jamatkhana']){const G=M.filter(r=>r.level===lv);if(!G.length)continue;
-    h+='<div class="section"><div class="shead"><h2>'+lv+' roles</h2><span class="cnt">'+G.length+'</span></div><div class="list">'+G.map(r=>{const rp=torReports(r);return '<a class="res" href="#tor/'+esc(torSlug(r))+'"><span class="rn">'+esc(r.n)+'</span><span style="min-width:0"><span class="t">'+esc(r.name)+'</span>'+(rp?'<small style="display:block;color:var(--muted);font-size:13px;margin-top:2px">Reports to '+esc(rp)+'</small>':'')+'<span class="m"><span class="pill reg">'+esc(r.applies)+'</span></span></span></a>'}).join('')+'</div></div>'}
+    h+='<div class="section"><div class="shead"><h2>'+lv+' roles</h2><span class="cnt">'+G.length+'</span></div><div class="list">'+G.map(torCard).join('')+'</div></div>'}
   return h;
 }
 
@@ -2193,14 +2238,15 @@ function navHTML(cur){
   const link=(id,name,n,flag)=>'<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(name)+'<span class="n">'+(flag?'<span class="flag">●</span> ':'')+(n??'')+'</span></a>';
   let h='<span class="lbl">Dashboard</span>'+link('overview','Overview','');
   h+='<span class="lbl">Departments</span>'+DEPTS.map(d=>link(d.id,({dmt:'DMT',admin:'Admin'})[d.id]||d.name,deptItems(d.id).length,flagsFor(d.id).some(f=>f.sev==='crit'))).join('');
-  h+='<span class="lbl">Collaborate · pilot</span>'+link('work','Workspace',STORE.items?items('task').filter(x=>x.status!=='Done').length:'')+link('people','Directory',DIR.filter(o=>o.name!=='(vacant)').length)+link('tor','ToRs',torList().length);
+  h+='<span class="lbl">Collaborate · pilot</span>'+link('work','Workspace',STORE.items?items('task').filter(x=>x.status!=='Done').length:'')+link('people','Directory',DIR.filter(o=>o.name!=='(vacant)').length);
   h+='<span class="lbl">More</span>'+link('regions','Regions',state.region?RN[state.region]:'7')+link('handover','Handover',HANDOVER.length)+link('review','Health check',FLAGS.filter(f=>f.st!=='fixed').length,true)+link('requests','Change requests',CR.rows?CR.rows.filter(x=>(x['Status']||'New')!=='Done'&&x['Status']!=="Won't do").length:'');
   return h;
 }
 function render(){
+  loadFolders();
   const raw=(location.hash||'#overview').slice(1);const base=raw.split('/')[0],sub=raw.split('/')[1]||'';const cur=ROUTES.includes(base)?base:'overview';
-  document.getElementById('rail').innerHTML=navHTML(cur);
-  document.getElementById('mnav').innerHTML=['overview'].concat(DEPTS.map(d=>d.id),['work','people','tor','regions','handover','review','requests']).map(id=>{const d=DEPTS.find(x=>x.id===id);const n=d?d.short:{overview:'Overview',regions:'Regions',handover:'Handover',review:'Health check',requests:'Requests',work:'Workspace',people:'Directory',tor:'ToRs'}[id];return '<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(n)+'</a>'}).join('');
+  document.getElementById('rail').innerHTML=navHTML(cur==='tor'?'iv':cur);
+  document.getElementById('mnav').innerHTML=['overview'].concat(DEPTS.map(d=>d.id),['work','people','regions','handover','review','requests']).map(id=>{const d=DEPTS.find(x=>x.id===id);const n=d?d.short:{overview:'Overview',regions:'Regions',handover:'Handover',review:'Health check',requests:'Requests',work:'Workspace',people:'Directory',tor:'ToRs'}[id];return '<a href="#'+id+'"'+((cur==='tor'?'iv':cur)===id?' aria-current="page"':'')+'>'+esc(n)+'</a>'}).join('');
   document.getElementById('regions').innerHTML='<button data-reg="" aria-pressed="'+(!state.region)+'">All</button>'+REGIONS.map(r=>'<button data-reg="'+r+'" aria-pressed="'+(state.region===r)+'">'+RN[r]+'</button>').join('');
   const act=document.querySelector('#mnav [aria-current]');if(act&&act.scrollIntoView)act.scrollIntoView({block:'nearest',inline:'center'});
   const m=document.getElementById('main');
