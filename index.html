@@ -1731,7 +1731,7 @@ function kidsHTML(fid,depth){
     if(k==='F'){const sub=FOLD.map[id],op=OPEN.has(id);
       if(!sub||depth>=4)return '<a class="fk" href="'+esc(kidUrl('F',id))+'" target="_blank" rel="noopener">'+badge(cls,lab,1)+'<span class="nm">'+esc(n)+'</span></a>';
       return '<button class="fk" data-fold="'+esc(id)+'" aria-expanded="'+op+'">'+badge(cls,lab,1)+'<span class="nm">'+esc(n)+'</span><span class="ftog">'+(op?'▾':'▸')+' '+(sub.k||[]).length+'</span></button>'+(op?'<div class="sub">'+kidsHTML(id,depth+1)+'</div>':'');}
-    const pv=PVK[k]?' data-pv="'+k+':'+esc(id)+'" data-pvt="'+esc(n)+'"':'';
+    const pv=PVK[k]?' data-pv="'+k+':'+esc(id)+'" data-pvt="'+esc(showTitle(n))+'"':'';
     return '<a class="fk" href="'+esc(kidUrl(k,id))+'" target="_blank" rel="noopener"'+pv+'>'+badge(cls,lab,1)+'<span class="nm">'+esc(showTitle(n))+'</span></a>'}).join('');
 }
 function openPreview(k,id,title){
