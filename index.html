@@ -1,0 +1,1781 @@
+<title>IV National Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: sticky brand header with search + region switch; left department rail; main view swaps by department (hash routes) */
+:root{
+  --paper:#F4F1EA; --card:#FFFFFF; --ink:#0B2A4A; --body:#3E4A5A; --muted:#6B7686; --line:#E2DCCF;
+  --navy:#0B2A4A; --navy2:#14385E; --gold:#B8752A; --gold-soft:#F3E6D3; --chip:#EEF2F7;
+  --ok:#2E7D5B; --warn:#B26B00; --crit:#B3261E; --warn-bg:#FFF4E0; --crit-bg:#FDECEA; --ok-bg:#E6F4EE;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif; --sans:"Source Sans 3",Calibri,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0A1828; --card:#10233A; --ink:#EAF0F7; --body:#C3CEDB; --muted:#8C9BAE; --line:#22384F;
+  --navy:#0E2E50; --navy2:#173F68; --gold:#E0A35A; --gold-soft:#3A2C18; --chip:#1A3048;
+  --ok:#5CC497; --warn:#F2B35B; --crit:#F2817A; --warn-bg:#3A2C10; --crit-bg:#3D1A18; --ok-bg:#12342A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0A1828; --card:#10233A; --ink:#EAF0F7; --body:#C3CEDB; --muted:#8C9BAE; --line:#22384F;
+  --navy:#0E2E50; --navy2:#173F68; --gold:#E0A35A; --gold-soft:#3A2C18; --chip:#1A3048;
+  --ok:#5CC497; --warn:#F2B35B; --crit:#F2817A; --warn-bg:#3A2C10; --crit-bg:#3D1A18; --ok-bg:#12342A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--body);font-family:var(--sans);font-size:15px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--navy)}
+a{color:inherit}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--navy);color:#fff}
+.top .bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding-block:12px;max-width:1280px;margin:0 auto}
+.brand{display:flex;gap:10px;align-items:center;min-width:0}
+.brand svg{flex:none}
+.brand b{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:.01em;color:#fff}
+.brand small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#E8C48F}
+.search{flex:1 1 260px;min-width:0;position:relative}
+.search input{width:100%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:6px;padding:9px 12px 9px 34px;font:inherit}
+.search input::placeholder{color:rgba(255,255,255,.65)}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.75}
+.regions{display:flex;gap:6px;flex-wrap:wrap}
+.regions button{font:600 12px var(--sans);letter-spacing:.04em;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:999px;padding:5px 11px;cursor:pointer}
+.regions button[aria-pressed="true"]{background:#E8C48F;border-color:#E8C48F;color:#0B2A4A}
+.draftband{background:var(--gold-soft);color:var(--ink);font-size:13px;padding-block:7px;text-align:left}
+.draftband .in{max-width:1280px;margin:0 auto}
+.shell{display:grid;grid-template-columns:240px minmax(0,1fr);gap:28px;max-width:1280px;margin:0 auto;padding-block:24px 60px}
+nav.rail{position:sticky;top:96px;align-self:start;display:flex;flex-direction:column;gap:2px}
+nav.rail .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 10px 6px}
+nav.rail a{display:flex;justify-content:space-between;gap:8px;text-decoration:none;color:var(--ink);padding:8px 10px;border-radius:6px;font-weight:600}
+nav.rail a span.n{font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+nav.rail a[aria-current="page"]{background:var(--card);box-shadow:inset 3px 0 0 var(--gold)}
+nav.rail a:hover{background:var(--card)}
+nav.rail a .flag{color:var(--crit);font-size:12px}
+main{min-width:0}
+h1{font-family:var(--serif);font-weight:600;color:var(--ink);font-size:30px;line-height:1.15;margin:0 0 6px;text-wrap:balance}
+h2{font-family:var(--serif);font-weight:600;color:var(--ink);font-size:20px;margin:0;text-wrap:balance}
+h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:0 0 8px}
+.lede{max-width:68ch;margin:0 0 18px;color:var(--body)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 26px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.stat b{display:block;font-family:var(--serif);font-size:30px;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.alert b{color:var(--crit)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.qa{display:flex;gap:12px;align-items:flex-start;background:var(--navy);color:#fff;border-radius:8px;padding:14px 16px;text-decoration:none;min-height:86px}
+.qa:hover{background:var(--navy2)}
+.qa .ic{flex:none;width:30px;height:30px;border-radius:6px;background:rgba(232,196,143,.18);display:grid;place-items:center;color:#E8C48F;font-weight:700}
+.qa b{display:block;font-size:15px}
+.qa small{color:#C9D6E4;font-size:12.5px}
+.deptcard{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;text-decoration:none;display:flex;flex-direction:column;gap:8px}
+.deptcard:hover{border-color:var(--gold)}
+.deptcard .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.deptcard .cnt{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+.deptcard p{margin:0;font-size:13.5px;color:var(--body)}
+.mix{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--chip)}
+.mix i{display:block;height:100%}
+.section{margin:26px 0}
+.shead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+.res{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:7px;padding:10px 12px;text-decoration:none;color:var(--ink);min-width:0}
+.res:hover{border-color:var(--gold)}
+.res:focus-visible,.qa:focus-visible,.deptcard:focus-visible,nav.rail a:focus-visible,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.res .t{font-weight:600;font-size:14.5px;line-height:1.3;overflow-wrap:anywhere}
+.res .m{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.type{flex:none;width:34px;height:34px;border-radius:6px;display:grid;place-items:center;font:700 10.5px var(--sans);letter-spacing:.04em;color:#fff}
+.ty-doc{background:#3B6FB6}.ty-sheet{background:#2E8A57}.ty-slides{background:#C98A1B}.ty-folder{background:#6B7686}.ty-form{background:#7A4FB0}.ty-pdf{background:#B3473E}.ty-web{background:#0B2A4A}.ty-video{background:#C0392B}.ty-soon{background:#A8A39A}
+.pill{font:600 11px var(--sans);letter-spacing:.03em;padding:2px 7px;border-radius:999px;background:var(--chip);color:var(--body)}
+.pill.reg{background:var(--gold-soft);color:var(--ink)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.crit{background:var(--crit-bg);color:var(--crit)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.draft{background:var(--gold-soft);color:var(--gold)}
+.callout{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:6px;padding:12px 14px;margin:14px 0;max-width:80ch}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+tr:last-child td{border-bottom:0}
+.sev{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.sev.crit{background:var(--crit)}.sev.warn{background:var(--warn)}.sev.info{background:var(--muted)}
+.regiongrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.regbtn{font:inherit;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;cursor:pointer;color:var(--ink)}
+.regbtn b{font-family:var(--serif);font-size:18px;display:block}
+.regbtn[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.empty{color:var(--muted);font-style:italic}
+.footer{color:var(--muted);font-size:12.5px;margin-top:40px;border-top:1px solid var(--line);padding-top:12px}
+.mobilenav{display:none}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:12px;padding-block:14px 40px}
+  nav.rail{display:none}
+  .mobilenav{display:flex;gap:6px;overflow-x:auto;padding-block:10px;-webkit-overflow-scrolling:touch}
+  .mobilenav a{flex:none;text-decoration:none;font:600 13px var(--sans);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+  .mobilenav a[aria-current="page"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+  h1{font-size:25px}
+  .list{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){.res,.deptcard,.qa{transition:border-color .15s,background .15s}}
+</style>
+
+<header class="top">
+  <div class="bar wrap">
+    <div class="brand">
+      <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true"><path d="M17 1 32 6v12c0 9.5-6.3 15.8-15 19C8.3 33.8 2 27.5 2 18V6z" fill="#E8C48F"/><path d="M17 5 28 9v9c0 7.3-4.7 12.3-11 14.9C10.7 30.3 6 25.3 6 18V9z" fill="#0B2A4A"/><circle cx="17" cy="18" r="5" fill="none" stroke="#E8C48F" stroke-width="1.6"/></svg>
+      <div><small>Ismaili Volunteers USA</small><b>National Dashboard</b></div>
+    </div>
+    <label class="search" for="q"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="#fff" stroke-width="1.6"/><path d="m11 11 4 4" stroke="#fff" stroke-width="1.6"/></svg><input id="q" type="search" placeholder="Search 300+ resources: drills, PVA, Camp Khidma, uniforms…" autocomplete="off"></label>
+    <div class="regions" id="regions" role="group" aria-label="Region"></div>
+  </div>
+</header>
+<div class="draftband wrap"><div class="in"><b>DRAFT alternative view</b> of the National Dashboard, built from the live site and Drive on 4 Nov 2026. Shared for feedback. Links open the current files; a full copy now lives in the IV National Hub 2026 (DRAFT) folder.</div></div>
+<div class="wrap"><div class="mobilenav" id="mnav"></div></div>
+<div class="shell wrap">
+  <nav class="rail" id="rail" aria-label="Departments"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<script>
+const DATA = {
+"pages": {
+"ismaili-volunteer": [
+{
+"s": "Policies & Procedures",
+"items": [
+{
+"t": "Regional Guide: IV Code of Conduct & Infraction Policy",
+"k": "f:1fLvsGRyKY9bhzPgQdBO6oYYw2IsbJ6Zs"
+},
+{
+"t": "Oath of Office",
+"k": "d:1-g5kCQDvsCXPPq0ILd2S18FOwKCgpzwJKg3t8yCzP0Q"
+}
+]
+},
+{
+"s": "Onboarding/Registration Resources",
+"items": [
+{
+"t": "IV Handbook & Terms of Reference 2026 (DRAFT)",
+"k": "d:1lbvitpddhzydUwPYKEyDZniMu2e_DxjJ2d6-VViNJRA"
+},
+{
+"t": "VLO Presentations",
+"k": "F:1lb2GzDU7OO4Ya4-NOxgAWkdYxz2X2XcG"
+},
+{
+"t": "Waiver",
+"k": "F:1uBEe1tGl3qdxZGLVA2u1fZ3dFO9SEQH_"
+}
+]
+},
+{
+"s": "Uniforms",
+"items": [
+{
+"t": "Regional Uniform Orientation Rollout Presentation",
+"k": "p:1m8k0MvQCGXxHm8xApFbW33BgdT42EgNsfgY_r95rBpM"
+},
+{
+"t": "IV Uniform Store (Directors, Regional & IV Leads)",
+"k": "w:ivuniform.myshopify.com/password"
+},
+{
+"t": "Ismaili Volunteer Uniform Quick Ordering Guide",
+"k": "f:1ZwYL-ECpG6PXL5InYtmr6mHuECG9io1w"
+},
+{
+"t": "IV Official Uniform & Merchandise Store",
+"k": "f:1AAvpWnWUgBosnE9ORI5t7l4NSrhJqASe"
+},
+{
+"t": "IV Badge Ceremony Overview",
+"k": "p:1KyqWmOLLg4KF_die6OVC0-0rSxGUP76-5PdTTcU72Ys"
+}
+]
+},
+{
+"s": "MyKhidma App",
+"items": [
+{
+"t": "MyKhidma App | Overall Admin Intro",
+"k": "p:1x1vbyy_WZHGwH2zmFyfBsOEjjD8OAmJy-cvNEVfqTYo"
+},
+{
+"t": "MyKhidma App - Volunteer Intro",
+"k": "p:1GmfKGZdhAncGv4abRetKLVReZ96KrLBqYRHP0CetnVY"
+}
+]
+}
+],
+"iv-youth": [
+{
+"s": "Experience Check-In",
+"items": [
+{
+"t": "Youth Experience Check-In Tracker",
+"k": "s:1ze1kqByhH80DX20rkyXrvipHg743eoDEffJOt83xTZM"
+}
+]
+},
+{
+"s": "Camp Khidma",
+"items": [
+{
+"t": "Camp Khidma - 2023",
+"k": "F:1bwfuZIJQjVk1z2Q_h4xac9-76NqLK7ty"
+},
+{
+"t": "Camp Khidma - 2024",
+"k": "F:1Bi9N79aatD3Cadb03EVdsEsq9Y_qv16I"
+},
+{
+"t": "Camp Khidma - 2025",
+"k": "F:1H319iVWlgE7DmyT1GiWW4e_gC8MCC2pl"
+},
+{
+"t": "Camp Khidma - 2026",
+"k": "F:1Pb2UYUYnszTs7XnWdeEcy5flozEOJ36H"
+}
+]
+},
+{
+"s": "Virtual Leadership Summit",
+"items": [
+{
+"t": "VLS - High School 2020",
+"k": "F:1mtQv216w_g3gz-ktdZWTPi3AKMuLsyjd"
+},
+{
+"t": "VLS - High School 2021",
+"k": "F:1WFmrA-R1yUm9yim50AAt9mCs4Lb9MOUw"
+},
+{
+"t": "VLS - Middle School",
+"k": "F:1YMCONfHfpwP6favMApmfs9X7c6BrHYtF"
+},
+{
+"t": "Youth Volunteer Camp 2022",
+"k": "F:1IWiNuBK9qHoY72r1j1-CPVm0rcJpBtNO"
+}
+]
+},
+{
+"s": "Celebration of Services",
+"items": [
+{
+"t": "Youth Activity Content",
+"k": "d:13dYLq-NhP5TyA29lgBvyXe56b2wD47diNYiRiOgehJM"
+},
+{
+"t": "IVC Trivia Night Questions",
+"k": "d:1jfjnU6cJ8kOEIo2oXvGrgo9UAw-PS0ASdO5IS3RHU84"
+}
+]
+},
+{
+"s": "Youth Training (PYD & more)",
+"items": [
+{
+"t": "Development Framework",
+"k": "F:1fJ5k6Jm8pVSjx4WTeRMl3yQJBJQ8Wcwa"
+},
+{
+"t": "PYD Regional Training Deck (Past PYD trainings)",
+"k": "F:1Ou7FRySL6XJr81Pb2cC79ZBMr8rQfL7r"
+},
+{
+"t": "PYD Trainings (Past PYD trainings)",
+"k": "F:1Ec25kXPBircANR2PR5geBPc5efr7VdZ7"
+},
+{
+"t": "40 Development Assets",
+"k": "f:1poppmflPJIn2r8hViEolZraCSRwJPDW-"
+},
+{
+"t": "Sample Youth VLO Deck",
+"k": "p:1H3j6MPLgmve-Bu012CnO4CU4hjmRZM202t9g6bNBOW4"
+},
+{
+"t": "Understanding Personality Types",
+"k": "f:1PpDTGIbdANADIHkqxEarVXbxT4FancmT"
+},
+{
+"t": "Feedback / Data",
+"k": "F:128qQtRYmqrEx-R2jRdW_-MW5JoOZqUG8"
+}
+]
+},
+{
+"s": "Youth Extravaganza",
+"items": [
+{
+"t": "YE Schedule",
+"k": "s:1ZGetZ6qmlIXNI7mR0ldpLAeC9IWzLBqXRwy-L5InxF0"
+},
+{
+"t": "YE ITREB Session",
+"k": "p:1gmQ6O2CusJux0y2h1A6ammg0cqNoPOMrFzVNrS5Lolk"
+},
+{
+"t": "YE Bullying Content",
+"k": "d:17ePBC6G22xmB1VzvgGKMf5oT3yZ-CZI83UpoNdClaJI"
+},
+{
+"t": "YE Content 2025",
+"k": "d:1zTwfKbubpRNxBy9vBRSqb2_lgq8qEyP1PN__AKS2D-I"
+}
+]
+},
+{
+"s": "eCPR Training",
+"items": [
+{
+"t": "eCPR 2025",
+"k": "F:1fs5JoEGsvryEMWW8e0qr-vU_a-kG-FDP"
+}
+]
+},
+{
+"s": "Mapping",
+"items": [
+{
+"t": "Youth Duty Mapping 2025",
+"k": "p:1Sfl99KOgkrjqbpE0L6GiiQ8JvcVA6PAUaY8cZ0xnuxk"
+}
+]
+},
+{
+"s": "Youth Settlement",
+"items": [
+{
+"t": "Youth Settlement Initiative Overview",
+"k": "p:1PP6078GOJazVMWLbCERqXuDFfOxHtHSXQwszwX2BHbw"
+}
+]
+}
+],
+"dmt": [
+{
+"s": "DMT Structure / Overview Materials",
+"items": [
+{
+"t": "DMT Regional Directory 2023-24 (archive)",
+"k": "s:16tfMdteQZMtyhrcxh4k_JNtzTe4BM4NUzECyni1uyCU"
+},
+{
+"t": "RDMT High Level R&R Overview Deck",
+"k": "p:1DYP1xtXZPMXr6Zmux4LGEPoFzCrRhvt5"
+},
+{
+"t": "Monitoring and Reporting (Sept 2023)",
+"k": "p:1Aku-FT81yNTpOIncmrkFdZTiDbkZpOtM"
+},
+{
+"t": "Preparedness, Response, and Recovery Teams Orientation",
+"k": "p:1zgpXGNtBnZtgbS5D-4yvZr3MyZpVF09_qTl_tzpsmU4"
+},
+{
+"t": "JK Cluster Management Team Orientation",
+"k": "p:1IVsC2k2Fe9_BI1Sgk9PqLdGxH0-B3xI2"
+}
+]
+},
+{
+"s": "Cluster Management System",
+"items": [
+{
+"t": "Cluster Management System Overview",
+"k": "d:1p5eB52nnsKkgXvy6Fy8JItj6pabNdp0j"
+}
+]
+},
+{
+"s": "DMT Texting Tool",
+"items": [
+{
+"t": "DMT Texting Tool: Sample Texts",
+"k": "d:1trXwQJrvNVRXRwDZo3t5IyQ3OCQiGybF-qfoCqqhjB4"
+},
+{
+"t": "DMT Texting Tool - JK Announcement",
+"k": "d:1CtqwMTq_YxwOt7VvrjhEXP1BddsWx1FxYFVQbLXm9vw"
+}
+]
+},
+{
+"s": "Institutional Response Plan",
+"items": [
+{
+"t": "Institutional Response Plan Overview Orientation",
+"k": "p:1kr1AiTndTV5McW14HxOzsQ56KN8avIy8VlzsWuV-eVc"
+},
+{
+"t": "After Action Report Template - BLANK (DRAFT)",
+"k": "d:1MflENLLjuEG2eTtDVW6leUi4skziuouEnnitWGpO0U8"
+},
+{
+"t": "After Action Report - Completed Sample (Hurricane Ian 2022)",
+"k": "d:1hZHzvvppvzfgAbmWKKOjwsiLXXQJtIFJ"
+}
+]
+},
+{
+"s": "Jamatkhana Emergency Operations Plan (EOP)",
+"items": [
+{
+"t": "Master JK EOP Deck",
+"k": "p:1qnxUkdhow8b729xSY26lWZAE3qU8UGoPz3dUmPRg0Ow"
+},
+{
+"t": "Power Outage Protocol",
+"k": "d:1AxF68EhLvvE5hw0_RHv_nuEJFcVvYr33"
+}
+]
+},
+{
+"s": "Fire Drills",
+"items": [
+{
+"t": "JK Fire Drill Guide",
+"k": "d:13fSPrD2dUfFPm32ntJYIhRQ6-fjYUgQiIGQ-BQ87A_Q"
+},
+{
+"t": "In Case of Fire in JK",
+"k": "d:1Fdgebdsge90Jht3_pkW0r2eCBKKreTyp"
+},
+{
+"t": "Fire Drill Completion Report Form",
+"k": "g:1FAIpQLSf9_Ea204EP40jRgtKfinx_7SECe9EuHyDJUIPY8e-n1VnOzQ"
+}
+]
+},
+{
+"s": "Tornado Drills",
+"items": [
+{
+"t": "Tornado Drill- Volunteer Orientation",
+"k": "p:1ykHb3Ya06-8yfyBO-QoT2UXqJkN3nwLF"
+},
+{
+"t": "Tornado Drill Guide",
+"k": "d:1I_ZBfRZh74Df5yJ6n6UjslNZilmYxRNQ"
+},
+{
+"t": "Tornado Drill Completion Report Form",
+"k": "g:1FAIpQLScoAsH_XxSdsJR1_zqJfZokEWUSdonsQRQpAd0CblTVuUwYpw"
+}
+]
+},
+{
+"s": "Shakeout Drills",
+"items": [
+{
+"t": "Earthquake Drill Guide",
+"k": "d:1SLOdqooTIUKEDPXp4gSqIyrO1dhh_XUl"
+},
+{
+"t": "In Case of Earthquake in JK",
+"k": "d:1i8VruPwNGMmV5DqPrvr5IKWQOPQn1BLT"
+},
+{
+"t": "Earthquake Video",
+"k": "f:1_zeiqEzZXiVkhm_uYkoRhkTMEjao6Put"
+},
+{
+"t": "Shakeout Drill Completion Report Form",
+"k": "g:1FAIpQLSes4_2ZlM4qTFTJO9UtAraGOHe_ZcOhUOK-eaaeFBBrxDfjDw"
+},
+{
+"t": "Shakeout Drill Volunteer Presentation",
+"k": "p:1_upOmc9DmLlWsEKrym-evTy6BSJOyQKr"
+},
+{
+"t": "Shakeout Drill Speeches for CUS, FL, MW, NE, SE, SW",
+"k": "F:1wb_igv9Y-3Z9MVItJ5FHY6EWt8iSe7Ht"
+},
+{
+"t": "Shakeout Drill Speeches for West",
+"k": "F:17DCYAPJQCbsHVH2lW0Fur-DkdD8MStcw"
+}
+]
+},
+{
+"s": "Shakeout Marketing Content (Previously Used)",
+"items": [
+{
+"t": "72 Hour Disaster Kit Content && Vendor",
+"k": "f:1KXpXEu2m-p3RVbhX02hJYm0CIKzgf3tP"
+},
+{
+"t": "AKDN Shakeout Campaign Poster 2018 - English",
+"k": "f:1S9WF-xsGQ4rDjP7miUTuurqJuQxiCzDX"
+},
+{
+"t": "AKDN Shakeout Campaign Poster 2019 - Farsi",
+"k": "f:1BGhd2OtursTlQBWoI9Nu0hTP6cQga_6K"
+},
+{
+"t": "AKDN Shakeout Campaign Poster - Gujrati",
+"k": "f:1xsnRj7QCaDTiBlHTV31aRF7jTslUxtgZ"
+},
+{
+"t": "AKDN Shakeout Campaign Flyer 2019",
+"k": "f:1oGil4SHXJzKclglz1yiBGoIZHMoSjSMI"
+},
+{
+"t": "AKDN Get Ready Poster",
+"k": "f:1YW5AnnmOIJuPCe7Ucb1hzyXSjo55HFdZ"
+},
+{
+"t": "AKDN Shakeout Campaign \"Join Us\" Poster",
+"k": "f:1NOGV4gQq3waqwd7dMjn_by1OQhzp6zI8"
+},
+{
+"t": "AKDN Shakeout Campaign Booklet",
+"k": "f:1viybAXv6oeshfFAask7q9yS-CBGk4ofe"
+},
+{
+"t": "Family Emergency Plan - Optional Supplemental Page",
+"k": "f:1OO-ouvMNAFq2up7Lg1yRGKn_YSjFOq1H"
+}
+]
+},
+{
+"s": "Monitoring",
+"items": [
+{
+"t": "Text By Choice User Guide",
+"k": "f:15-uwP_zVE1RIishmF9_014oGn8WibsYk"
+},
+{
+"t": "WhatsApp Group Monitoring Report Template",
+"k": "d:156Gte2HqkhDATSGFcGAoXRLUPPlvPh4M_AhkmFxdUyM"
+}
+]
+},
+{
+"s": "Jamati Preparedness Programming (Disaster Preparedness Video Youtube Links)",
+"items": [
+{
+"t": "Earthquake AND Basic Preparedness Steps",
+"k": "y:Cyoxn_41qys"
+},
+{
+"t": "Earthquake Preparedness",
+"k": "y:XZiudFNbJIQ"
+},
+{
+"t": "Hurricane AND Flooding Preparedness Steps",
+"k": "y:_Fiiu5QWr8E"
+},
+{
+"t": "Hurricane and Flooding Preparedness",
+"k": "y:LH3JHEGdcKE"
+},
+{
+"t": "Tornado AND Basic Preparedness Steps",
+"k": "y:D3OTv3OP9n8"
+},
+{
+"t": "Tornado Preparedness",
+"k": "y:PXmt3khRKfU"
+},
+{
+"t": "Wildfire AND Basic Preparedness Steps",
+"k": "y:s8B7bErSG48"
+},
+{
+"t": "Family Stories on Preparing for Natural Disaster",
+"k": "y:ielhVNdo1Ng"
+},
+{
+"t": "Preparedness Tips for Natural Disaster",
+"k": "y:IddOMjI6r2Q"
+}
+]
+},
+{
+"s": "National Programs",
+"items": [
+{
+"t": "DPW Oct 2024",
+"k": "F:1GF5YK4UjdDwU5szu7LR05ABRVM4KurHz"
+}
+]
+},
+{
+"s": "Jamati Communication Resources",
+"items": [
+{
+"t": "Overview of Communication Mechanism with Jamat",
+"k": "d:1WWP0f7uHVqKigBHPl6NVs1WSQw3FFtfL5xXuwFcZ7po"
+}
+]
+},
+{
+"s": "Weather Infographics",
+"items": [
+{
+"t": "Basic Preparedness",
+"k": "F:1FrDQftMdzi-A2FoUr2Ls4jqitjZzFVoR"
+},
+{
+"t": "Boil Water",
+"k": "F:1Lv1zRZtzRF3MU4Q45lR-HocgreGIiHO6"
+},
+{
+"t": "Earthquake",
+"k": "F:1-EXCF8A1El6pNlLEn_g-_Ohc5tCu97mw"
+},
+{
+"t": "Emergency Kit",
+"k": "F:1UVJIPml-o7KtJIv8F3rSAtu8nwEIgRbf"
+},
+{
+"t": "Hurricane & Flood",
+"k": "F:1q7U_3KE1C3KxvFTFn2fUSCG7-fRJufrS"
+},
+{
+"t": "Insurance",
+"k": "F:1UttuNg_Fph6I2raX6MA6_ysTSd8Ph--Z"
+},
+{
+"t": "Make A Plan",
+"k": "F:1qCX25YVvIBdjgTS214TAk1_exbtMGdGz"
+},
+{
+"t": "Power Outages",
+"k": "F:1vfE0uZXkKV5-y9ADN0VuJ2DlgFOMv-vI"
+},
+{
+"t": "Stay Informed",
+"k": "F:1_QoCyFEKkeBAsFs-J7FZQA6nvmDYa5p9"
+},
+{
+"t": "Tornado",
+"k": "F:10Z0YLlmo-Ibmt9UluKmf4aU62x5ko-LE"
+},
+{
+"t": "Wildfires",
+"k": "F:1uP6j-fqquKMqHEooUgxbO-iGMzY_SSEN"
+},
+{
+"t": "Winter",
+"k": "F:1dnCFuz2QBXUz-QjA8F2UpTfTzlw72gHv"
+},
+{
+"t": "Messages in English, Farsi & Gujrati",
+"k": "F:1N80yoFSz3Pvq96KB13NFecMAJIQJX0Cc"
+}
+]
+},
+{
+"s": "Business Preparedness for Severe Weather/National Disaster",
+"items": [
+{
+"t": "Business Preparedness Communication Plan Template",
+"k": "s:1QCSVKXBfavulJwKr4UbjRQpPRkR1SJCV"
+},
+{
+"t": "Boil Water Advisory",
+"k": "f:12adUeIAaACowTZqZj3hCtQbXjIalMGoE"
+},
+{
+"t": "Communication Plan",
+"k": "f:1IsuR5GOt0uxmoFInLPwtXYpKrr4iAZzK"
+},
+{
+"t": "Evacuation Preparedness Tips",
+"k": "f:1E87DxmvG2IyJk64TQI-R4XKPwCcBqITQ"
+},
+{
+"t": "Evacuation Plan",
+"k": "f:1L7BxcnSXUNeaG2fO-nfdGNl_Sbuiregh"
+},
+{
+"t": "Fire Preparedness Tips",
+"k": "f:1eak1h1Kg0gGv1Dn1a2g8uLnloD_tPyuD"
+},
+{
+"t": "Flooding Preparedness Tips",
+"k": "f:1aCBLbadxjDOBWXDt8Vd7Dw-bDPd_XXAT"
+},
+{
+"t": "Hurricane Preparedness Tips",
+"k": "f:1lKPtXStkQUllR0QdrMcgwMtUhfyLfdNV"
+},
+{
+"t": "Identify your Risks",
+"k": "f:1Q13Sx3rEO2hgbT-vYiBgOLIRVKHEpg6K"
+},
+{
+"t": "Insurance Coverage",
+"k": "f:1eOCARecC3mkYA-0y0GJD-McMw8NchA3I"
+},
+{
+"t": "Tornado Preparedness Tips",
+"k": "f:1W0qXQe9EuElx6dZS1ujTrpBh7Uk6AfJK"
+},
+{
+"t": "Risk Assessment Matrix - Business Prep v3",
+"k": "f:1i_JMOKrqdPep5qGn5de0hy-GL6sHGGBx"
+},
+{
+"t": "Tornado and Severe Storm Tips",
+"k": "f:1pGKY_sjucfrP9LGk6VBpy6qw1vAmrIbq"
+}
+]
+}
+],
+"safety-security": [
+{
+"s": "Jamati-Facing Security Messaging/JK Announcement",
+"items": [
+{
+"t": "The.Ismaili/USA Staying Safe Website Link",
+"k": "w:the.ismaili/usa/staying-safe"
+},
+{
+"t": "Protecting Your Family Videos / Infographics",
+"k": "w:the.ismaili/usa/stay-safe/protecting-your-family"
+},
+{
+"t": "Safety & Security Tips: Proactive Actions",
+"k": "y:XSqE-QogtEs"
+},
+{
+"t": "Safety and Security Tips: Keeping Our Homes Safe",
+"k": "y:BPJuQ0Iqd1I"
+}
+]
+},
+{
+"s": "Law Enforcement Engagement",
+"items": [
+{
+"t": "Law Enforcement Advisory (Holidays)",
+"k": "d:1HKIN7QH6ywOmMDh5J9PML9k7dkg_JJHV07_vRxcTnNA"
+},
+{
+"t": "Law Enforcement Engagement Tracking Form",
+"k": "w:forms.gle/zCw578a2EEcrzzNU8"
+}
+]
+},
+{
+"s": "Off-Duty Law Enforcement Engagement",
+"items": [
+{
+"t": "Off-Duty Law Enforcement Tracker Form",
+"k": "g:1FAIpQLSfTe4Bx6iujA-8RRwDj3P4Ae1g-QF_eLSxHwwmrtPzff445UQ"
+}
+]
+},
+{
+"s": "Jamatkhana Physical Security Dashboard",
+"items": [
+{
+"t": "Central - JK Physical Security Dashboard",
+"k": "s:1ZU_v47AWFY1s3SKhGJ8_yrF-5NyXNWVHiGh1kWCBimo"
+},
+{
+"t": "Florida - JK Physical Security Dashboard",
+"k": "s:1UnNVKAOfOWxI24zq4waO21eaA6pCXHdPugXRrxU-5sE"
+},
+{
+"t": "Midwest - JK Physical Security Dashboard",
+"k": "s:12HaRRjBj2CelUfVHA-E99Q25Pg5SZaq-Sz7d8hpmKyY"
+},
+{
+"t": "Northeast - JK Physical Security Dashboard",
+"k": "s:18sZ3T6CAVbEBQRzs_V0JS0vj-APlI8nZ1npaP6hI1kc"
+},
+{
+"t": "Southeast - JK Physical Security Dashboard",
+"k": "s:15-Hypb2L-NuUETz1T83RoDIMUY5J9jjSywVG6KF1fAY"
+},
+{
+"t": "Southwest - JK Physical Security Dashboard",
+"k": "s:1hpgFBIjv4QjyQN3XRIfcTSCpY9-OVWpRnTTNh_0s5u0"
+},
+{
+"t": "West - JK Physical Security Dashboard",
+"k": "s:1iYG9fIoPunVnYoFGH7LcBcAYBrUx3R45GCBnkFU2_Vw"
+}
+]
+},
+{
+"s": "Premises Vulnerability Assessment",
+"items": [
+{
+"t": "JK Premises Vulnerability Assessment Form",
+"k": "g:12mxA0C2oBC5HxOOLnWTijN329PmSzAz_sYlJddIyzUE"
+},
+{
+"t": "Central - JK PVA Response Sheet",
+"k": "s:1YENCPAxC-tyR8dW69k0rUQJJZfX2GrP7MkIJUSBhLVg"
+},
+{
+"t": "Florida - PVA Response Sheet",
+"k": "s:1mv1LWOiWy5IK2e_mhoxnL7-dC3UHvkj9jUtbR6bMK3c"
+},
+{
+"t": "Midwest - PVA Response Sheet",
+"k": "s:1FNDSwUjNLocaSca76Vs6HbtUJHJCoiaWyF6U6HdHA6A"
+},
+{
+"t": "Northeast - PVA Response Sheet",
+"k": "s:1ZBE0ybOYX1uvXiigiE3Spmh7FQCjNuKccW29XdvZycI"
+},
+{
+"t": "Southeast - PVA Response Sheet",
+"k": "s:1v0A1yqEeVRrwaokxxp0sfcULSe0XI9WktOhlqF-872w"
+},
+{
+"t": "Southwest - PVA Response Sheet",
+"k": "s:16KIV_J1Dp-2OAOn21j_rquQ1SxEsuB8WauEXWLaRvQ8"
+},
+{
+"t": "West - PVA Response Sheet",
+"k": "s:1YVhGsGqBQLeZyqlugnLVP9DYYeHJiDVFHvFw8_VKR5A"
+}
+]
+},
+{
+"s": "JK Layouts: Emergency, Fire, and Tornado Maps for all JKs",
+"items": [
+{
+"t": "Central - JK Layouts",
+"k": "F:1x7fad9OJCM8Zl5zENsxZ3lpWuhR6Gnf2"
+},
+{
+"t": "Florida - JK Layouts",
+"k": "F:1d5acTbcFakE0qSmLExoeuInn66ps6Moi"
+},
+{
+"t": "Midwest - JK Layouts",
+"k": "F:1J0g8Dg9CCdbpzx_GYc2t-vIzCHpfyO0m"
+},
+{
+"t": "Northeast - JK Layouts",
+"k": "F:1Vw0rPRW5r6LIHqimjr5_rDHgFGjPDKWd"
+},
+{
+"t": "Southeast - JK Layouts",
+"k": "F:1ta9GXjvNEeup7-LYQhjAn7DTPycFl0mA"
+},
+{
+"t": "Southwest - JK Layouts",
+"k": "F:17w04DqtKq8sXN6jdCZF4pguddyxieb3i"
+},
+{
+"t": "West - JK Layouts",
+"k": "F:1bnQjHr_F5yCnED18BUaaih8Usur6eTXF"
+}
+]
+},
+{
+"s": "Jamatkhana Emergency Operation Plan (Lockdown, Shelter-In-Place, and Natural Hazards Combined)",
+"items": [
+{
+"t": "Master JK EOP Deck",
+"k": "p:1qnxUkdhow8b729xSY26lWZAE3qU8UGoPz3dUmPRg0Ow"
+},
+{
+"t": "JK EOP Simulation Deck - 2023",
+"k": "p:1omPyXOtpJy6a2iZE6QmCYqLi8XEzxr2vlbHjsz0Okaw"
+},
+{
+"t": "JK EOP Training Invite - Email Template",
+"k": "d:1G6SfcAfFCC6jrY6t7_8Pksu9EFCqh-C3xP4TnBhLAfE"
+}
+]
+},
+{
+"s": "Security Planning - Jamatkhana",
+"items": [
+{
+"t": "JK Security Planning - All JK",
+"k": "F:1wu2ok6x0PP6biHjAh_tRfrAE4jiPexE_"
+}
+]
+},
+{
+"s": "Security Planning - Camp",
+"items": [
+{
+"t": "Camp S&S Checklist",
+"k": "d:14e20vPhlGcIGxrT4WHEJarzvNpdxJ4P0JTtNtLRYov8"
+},
+{
+"t": "Completed Camp Security Checklists",
+"k": "F:1vkoxpVIQQrjUNVF4l9_EHo15ZURDB7f5"
+},
+{
+"t": "Camp Security Tracking 2026",
+"k": "s:1GrAial8hcShkQ_GzYnbnGNP8MHBRM1Db6uobySXLrIQ"
+},
+{
+"t": "Camp Security Orientation",
+"k": "F:1wwsF0xLRb_jAdi3vymZKqJOK6ocbLL_C"
+},
+{
+"t": "Camp - Incident Reporting Form",
+"k": "w:incidentreport.xyz/report_camp_incident.php"
+}
+]
+},
+{
+"s": "Security Planning - Events",
+"items": [
+{
+"t": "Regional Event Tracker Form",
+"k": "g:1FAIpQLSfBJqjBZokYlmO8qyD82gVfv7_y6z8LBWV1qI3DWZ648CiuDw"
+},
+{
+"t": "Regional Event Tracker Response Sheet",
+"k": "s:1IPPXaNztFGq9dunhbClhNe6Q-UiW_ry2Rgo6b2pL3LQ"
+},
+{
+"t": "S&S Planning Guide: Off-Site Events",
+"k": "d:1z0JWU0gbMuh8IdRHvgEGJmoMzuZjVwiBlzU3jNe0NDQ"
+},
+{
+"t": "Central - Completed Event Checklist",
+"k": "F:1fU09QX1LY0hz9j1TwNSdb5aq2iWGNJ8l"
+},
+{
+"t": "Florida - Completed Event Checklist",
+"k": "F:1h49TH4w8hGBSv2ox3M2EytJMZ7lmHPSV"
+},
+{
+"t": "Midwest - Completed Event Checklist",
+"k": "F:11vCKYqzpJgDyLxMspjWMvZGBFd_0XazJ"
+},
+{
+"t": "Northeast - Completed Event Checklist",
+"k": "F:1ZfHt46Hc4SKlxyJNfqBdf5Qt1hOUNrPp"
+},
+{
+"t": "Southeast - Completed Event Checklist",
+"k": "F:1X5D14o9YktSbIjF3GH0Bz6O17Fbn0WcP"
+},
+{
+"t": "Southwest - Completed Event Checklist",
+"k": "F:1Hnzj-Q85Rn4hi8qCciv-4qEGHJKaS4vp"
+},
+{
+"t": "West - Completed Event Checklist",
+"k": "F:1mryZ-fWhGFXcCLLBngxFuuMBcxYxa4-2"
+}
+]
+},
+{
+"s": "Security Planning - REC/ECDC",
+"items": [
+{
+"t": "ECDC S&S Orientation",
+"k": "p:1zbTlDiM_fHXnjwOO81-yA0iKWgCerOilDjGw2HR7hDo"
+},
+{
+"t": "REC S&S Orientation",
+"k": "p:1QF19Tsz_lSSeqm0UX1KMfEqYeq5syOfXLmN527kkG80"
+},
+{
+"t": "REC S&S Protocol Overview Guide",
+"k": "d:1_YH-rdaGfjwUd84FY0QLbXVMVJqqx-sN9Gm1vOzBX2A"
+},
+{
+"t": "REC / ECDC Lockdown / Shelter-in-Place Orientation",
+"k": "p:123af5DLjywoMmKbgBNetkktj5RPxp7PlytvxykObgwU"
+},
+{
+"t": "REC / ECDC Fire Drill Guide",
+"k": "d:1fEv255A9keCNXoLoWwLO5HAK4q7DvyrCKnDSk0O8W5Q"
+},
+{
+"t": "ECDC SFP List (2023-2024)",
+"k": "s:1uan9eXGPdIQ286ntoGFNOnrC4X2EDA2G"
+},
+{
+"t": "REC SFP List (2023-2024)",
+"k": "s:1S5hC3n8QTNt4k-VzP3xb-y6gXEvAcsab9S33Y5UlLE0"
+},
+{
+"t": "REC Principal Email (Sample)",
+"k": "s:1Jg2UdLov9hFSj06kMUJUWKucLp80lZFTWLdJDxIyvTk"
+},
+{
+"t": "2026 REC Safety Orientation - National",
+"k": "p:1Qn-vcnmI6sA6jjEvJSm6PUG3T7esyqNA"
+}
+]
+},
+{
+"s": "Key REC S&S Items Trackers",
+"items": [
+{
+"t": "Central REC Security Key Actions Tracker",
+"k": "s:14XHC43XQPWjAHPUr9mHgIHX54gWBFyrUOGKU3g6CCP0"
+},
+{
+"t": "Florida REC Security Key Actions Tracker",
+"k": "s:1lutJdhgV11pAwNCoa7DdplY1jHv4wuyJHNU0FqVSl50"
+},
+{
+"t": "Midwest REC Security Key Actions Tracker",
+"k": "s:1sq6h_KSrZAHjX7LDXgXMC5-zW9F51SjZI25Vklb_wgo"
+},
+{
+"t": "Northeast REC Security Key Actions Tracker",
+"k": "s:1XkIrl17m0UlOtVw0bF3SLKOIwLwl3ULjCKj6SAkCkpg"
+},
+{
+"t": "Southeast REC Security Key Actions Tracker",
+"k": "s:1yZHv4TtdD5peD68PrIF3psopc0Gwjg7BFH_7WRdcG9E"
+},
+{
+"t": "Southwest REC Security Key Actions Tracker",
+"k": "s:1GBBV-O695mnBJUeicHjQb6ekDU-jx-QSKgVOxwqRVxc"
+},
+{
+"t": "West REC Security Key Actions Tracker",
+"k": "s:1_6K-B_9-2XJrh6HmCVbAX6GsQHotr3JZG8KdaY4TPt0"
+}
+]
+},
+{
+"s": "Training / Orientation Resources",
+"items": [
+{
+"t": "Safety & Security CSL Overview",
+"k": "p:1irnxODz5SubWrtpEjpg0IWINPpid4U0F8HgatvAfFwM"
+},
+{
+"t": "Short S&S Volunteer Training Videos",
+"k": "F:1mQAJvm29fKWWXxzlJElnHXT8dOw0PctP"
+},
+{
+"t": "Security Consciousness Training (2021)",
+"k": "p:1k-KVMeLW07Oc-m6uqApfWP56WVN4kdIN"
+},
+{
+"t": "2026 Surviving an Active Shooter E-Learning Module Registration",
+"k": "g:1FAIpQLScKJqHRPy741LbN0laSNcv-EbEeHC88eju7WyEdG74qQ7iXJg"
+}
+]
+},
+{
+"s": "External Security Resources",
+"items": [
+{
+"t": "DHS - Physical Security Performance Goals Faith-Based Communities",
+"k": "f:1LhTPrMEsFyax87QaIrnX3FYJSMYUwL_-"
+}
+]
+}
+],
+"administrative-documents": [
+{
+"s": "Regional Priorities Project Tracker",
+"items": [
+{
+"t": "Central - Priorities Project Tracker",
+"k": "s:1W8lgosf6nsFoEhMneTanhLi8TPMW9FJ6mhkJcsjJaCM"
+},
+{
+"t": "Florida - Priorities Project Tracker",
+"k": "s:1JE-47pWzaXUkiEcWPbc_m7dcUpSH7ltpkTxGghG2tmI"
+},
+{
+"t": "Northeast - Priorities Project Tracker",
+"k": "s:1SoG1vGum-sTWCaVPC3p0GiwijeHBEw9TSailJrd9Who"
+},
+{
+"t": "Midwest - Priorities Project Tracker",
+"k": "s:1G2vdxogpIl4fsHohZkrOMnN-VWkY1jzvARdIhKYtRIo"
+},
+{
+"t": "Southeast - Priorities Project Tracker",
+"k": "s:1ryy97WURAqayl2LidgT6ve1IddeJerwMMgP-CxOO-ik"
+},
+{
+"t": "Southwest - Priorities Project Tracker",
+"k": "s:1kxeZO8cLHbZX-Tx9XM5u5Gek1sG8pZr9dY_7X_oK70w"
+},
+{
+"t": "West - Priorities Project Tracker",
+"k": "s:1nc314CM1pUlc8toupljIOB3OEdQ1bunA9Yjaa08RX4Y"
+}
+]
+},
+{
+"s": "Workstream Directory 2023-2026",
+"items": [
+{
+"t": "National/Regional Team Directory",
+"k": "s:1V2hR_cLFAuS3_5zfNERdRBDxTonu0fPY"
+},
+{
+"t": "DMT Directory 2024-25",
+"k": "s:1U0iNw2Uux0xpVTpXMPBvVhOZ_j0gy7IJKVGevOFeTDc"
+},
+{
+"t": "Regional JKD List",
+"k": "s:1jvqe8USmmyVtWqoQoU37wi-6__OJPHMDavMjiAbMd70"
+}
+]
+},
+{
+"s": "Regional Folders",
+"items": [
+{
+"t": "Central Region",
+"k": "page:central"
+},
+{
+"t": "Florida Region",
+"k": "page:florida"
+},
+{
+"t": "Midwest Region",
+"k": "page:midwest"
+},
+{
+"t": "Northeast Region",
+"k": "page:northeast"
+},
+{
+"t": "Southeast Region",
+"k": "page:southeast"
+},
+{
+"t": "Southwest Region",
+"k": "page:southwest"
+},
+{
+"t": "West Region",
+"k": "page:west"
+}
+]
+},
+{
+"s": "Tracker",
+"items": [
+{
+"t": "Fire Drill, Dashboard & EOP Completion Tracker",
+"k": "s:1AjiujOKagAxR801JBqksXKAashp8JXDN8sB_Ht9Pyi0"
+},
+{
+"t": "REC - Incident Report Notification List",
+"k": "s:1Jg2UdLov9hFSj06kMUJUWKucLp80lZFTWLdJDxIyvTk"
+},
+{
+"t": "2026 ECDC SAS E-Learning Module Tracker",
+"k": "s:1qhwzVXLbu6WO60iVNkqTpSLjy51fiaHwFYLG4sO2yIQ"
+},
+{
+"t": "2026 REC SAS E-Learning Module Tracker",
+"k": "s:1P6gF3Mxmo82GFOTfb8jmK5fNwAXQGPyD9sysEa7oQdE"
+},
+{
+"t": "Ismaili Volunteer Survey Breakdown 2026",
+"k": "s:1UjUBJ7YxdEUqY-iucLDFXLkXWi_s-bRZpbHBbeZXO2g"
+},
+{
+"t": "MyKhidma Onboarding Scheduling Tracker",
+"k": "s:1Wg-gQWtE3B4LetOvcaH72wvX5y7tVdGCoaoRMx54JvY"
+}
+]
+}
+],
+"training": [
+{
+"s": "Effective Communications",
+"items": [
+{
+"t": "10 Minutes",
+"k": "d:1AGAWmfLyMka6qwl8uKcf66fhtQH3YhKw"
+},
+{
+"t": "30 Minutes",
+"k": "d:15SNs6DweR-6aBjD1y0pAHkhozMa954tc"
+},
+{
+"t": "60 Minutes",
+"k": "d:1SNz-aGTTzS2sOjTd9QnOKZaxYQuxX0Q8"
+},
+{
+"t": "Story of Left & Right",
+"k": "f:14jt_g5fszDlJI6QTkSF_5lskabJ-7zks"
+},
+{
+"t": "Communications 3 Level Role Play",
+"k": "p:1VgYrTwPFB370jwOgZhpC_cCTE6Fc7e-d"
+},
+{
+"t": "Communications Module 60 Minutes",
+"k": "p:1VgYrTwPFB370jwOgZhpC_cCTE6Fc7e-d"
+},
+{
+"t": "Communications Module 90 Minutes",
+"k": "p:1WQysW4Zbfxjsbcr1-IvOkzuxLfO149i7"
+}
+]
+},
+{
+"s": "Leadership",
+"items": [
+{
+"t": "Leadership 101",
+"k": "p:18JEdMC4JCschbiCJTcHYxCBAQisdGuFs"
+},
+{
+"t": "Leadership in Service",
+"k": "p:1raLIZQrovRCWT4KwQGO7sB05gSqhe0-P"
+},
+{
+"t": "Leadership Styles",
+"k": "p:1IPIHHWSpf3zwgJSiZh5hfn6jGS8kdQ9u"
+}
+]
+},
+{
+"s": "Service / Seva",
+"items": [
+{
+"t": "Excellence in Service",
+"k": "p:1_IeNeGlvMTdxrR8suaHxGZRU-APDhn0B"
+},
+{
+"t": "Seva Culture",
+"k": "p:1ldJnSMssBmKdgi3AuLxWe3s9ExGyBF_q"
+},
+{
+"t": "The Essence of Volunteerism",
+"k": "p:1H6xqi08WuEQXfqOKN9bK99F5Nvc77Bs6"
+}
+]
+},
+{
+"s": "Volunteer Management",
+"items": [
+{
+"t": "VRM Training Strategy",
+"k": "p:1yQhEaLBp5qtgS8dnGQUc1puk8Rba6SWW"
+},
+{
+"t": "Institutional Strengthening - Team Building",
+"k": "p:1i8BG0rxO2WF8LqiZdZve6aWPKiDv78UU"
+},
+{
+"t": "Volunteer Management",
+"k": "p:1Llf5ZSysM3MN7jR_Gw1TY53HendoVh9a"
+},
+{
+"t": "VRM Conflict Management",
+"k": "p:1o_jO2JBnqLSz6Y1Vhgs-Pq9evanc7wvw"
+},
+{
+"t": "Enabling Environment Cases",
+"k": "p:1jhPh9JR8kKyh2XH4OvsveShPU84xQkNN"
+},
+{
+"t": "New Volunteer Admission",
+"k": "p:1xDhlogQASnY7fRm7GPqeQi5EbUy5-SN6"
+}
+]
+},
+{
+"s": "DMT Training",
+"items": [
+{
+"t": "CPR/First Aid/AED Training Request Form",
+"k": "g:1FAIpQLScUmEEWwFnsmXr7aADWoW_hCw6CkJeHRWa1iNv9-BgiW67YWA"
+},
+{
+"t": "JK Cluster Management Team Orientation",
+"k": "p:1IVsC2k2Fe9_BI1Sgk9PqLdGxH0-B3xI2"
+},
+{
+"t": "Master JK EOP Deck",
+"k": "p:1qnxUkdhow8b729xSY26lWZAE3qU8UGoPz3dUmPRg0Ow"
+},
+{
+"t": "Monitoring and Reporting (Aug 2023)",
+"k": "p:1483QOBONmPhBB6xhTNI-TmHJSNP81QJV"
+},
+{
+"t": "Gatekeeper Trainer List",
+"k": "s:1dRKKf6Xzg6GjVUaKtdBqpStZuFHMa2jdZPq13COjMdg"
+}
+]
+},
+{
+"s": "Safety & Security Training",
+"items": [
+{
+"t": "Topic1 EOP Houston 2026 - Master",
+"k": "p:1TUgrycQxLVfmdP1JRgA6xC0g788uiFdVSPm7fkHap_8"
+},
+{
+"t": "Topic2 Security Training Level 1 Redesigned - Master",
+"k": "p:1T8-H4OXxjzWyMfF71SFz7xivBqJCt7MXz-5wsAJ6nfk"
+},
+{
+"t": "Topic3 Risk Management Redesigned - Master",
+"k": "p:1uzPsNwz-nmpgbJNZuaZgkxVLWgCypDCbo873kooayHc"
+}
+]
+}
+],
+"incident-reporting": [
+{
+"s": "Resources",
+"items": [
+{
+"t": "Incident Reporting User Guide",
+"k": "f:1UyQhPVQX_Q497GTxbpbzeG5w_WM49VYn"
+},
+{
+"t": "Incident Reporting Leadership Portal",
+"k": "w:incidentreport.xyz/login.php"
+},
+{
+"t": "JK & External Incident Reporting Form",
+"k": "w:www.incidentreport.xyz/report_incident.php"
+},
+{
+"t": "Camp - Incident Reporting Form",
+"k": "w:incidentreport.xyz/report_camp_incident.php"
+},
+{
+"t": "Onboarding",
+"k": "w:www.incidentreport.xyz/report_incident.php"
+},
+{
+"t": "Incident Reporting FAQ (forthcoming)",
+"k": "soon"
+},
+{
+"t": "Incident Report Completion Orientation (forthcoming)",
+"k": "soon"
+}
+]
+}
+]
+},
+"regions": {
+"central": {
+"youth": "10gXcri-cKJhR5IbhA_HV2ffMWTTnK0LR",
+"le": "15ofISW6F1FxMSHnYT82m5JBItbhVpUr3goWt0sM7t7s",
+"offle": "1LMMFuaJImFX9-rqUQ3DiFW_vk8PCpah4H6sPrINHWR0",
+"psd": "1ZU_v47AWFY1s3SKhGJ8_yrF-5NyXNWVHiGh1kWCBimo",
+"pva": "1YENCPAxC-tyR8dW69k0rUQJJZfX2GrP7MkIJUSBhLVg",
+"lay": "1x7fad9OJCM8Zl5zENsxZ3lpWuhR6Gnf2",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "10m7O3VkF-MPlAkQ83jlCVuLYGJRR--8H",
+"txp": "1mAtZirSUvg6DAMYw40lWfPx2-eVDZuxZ",
+"fire": "1p47oLVbzyU3v1-EeVoPv2I0L43CSIG-ClTjxEcwFfxc",
+"torn": "1Zt5WMq3PA1SDe-QfiqouHhBL6Jpd2rth9IMi1AQoH-k",
+"shake": "1wsyhdtKWYqy4UldywG-sPqA3BH0hc1eLSDJr7EZWxt4",
+"wx": "1KepuAzOA27nlOq3GSNu2uFe0mINMrpyN",
+"pyd": "p:1fC1Ow7C11jRaBuLwKew0G-2wZk3UaH5zq05NBwDdBuY",
+"hou": "1nA88olD3_0gf3W4Ie94Ez1MShXnXiko4",
+"radio": "1vLYeGlVFZAlDm_p3k6gSyB9AX2a-0a3kw4C_h2kT_6Y"
+},
+"florida": {
+"youth": "1j-5w4YXFRQsnlHq83TqhRNiJWYhPxKl8",
+"le": "1K3NggFv1zC3tFH_j43HDDnG3AK1FgSXS6OcKc2hLHX8",
+"offle": "13-J_9Gw8hduBDOFg7CRXxAQbEhdsAkV52v5vTk_1ckk",
+"psd": "1UnNVKAOfOWxI24zq4waO21eaA6pCXHdPugXRrxU-5sE",
+"pva": "1mv1LWOiWy5IK2e_mhoxnL7-dC3UHvkj9jUtbR6bMK3c",
+"lay": "1d5acTbcFakE0qSmLExoeuInn66ps6Moi",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "1_X5E53dBojyQvdFGAwoSDYW3pyQD9bQC",
+"txp": "1k4YRD_L1n2HlTF7nV3uLRa6mc3phbG59",
+"fire": "1RnD8_Qfz7xcElcGIoKnk21qeI_a3UY5PbGGQPdaMCts",
+"torn": "17Bkz6VHDWrV_rQDt6ROJylfNXl3l1SvYof3KT5VkXhc",
+"shake": "1ARTJ_loSWd0LqrckdJlOgFh9eo_1VFEJKXTu04KPsYs",
+"wx": "1vHePpvE6hJXOTVy-mnEdN7nBcKGAfhMN",
+"pyd": "BROKEN",
+"hou": "1E2AcKap48g0xUFQOHKP_VOjAfpV9t_IN",
+"radio": "1M4uvhPE25QwCQdpsbw-zYBiXn9BN-jCbKb42PaA5X6U"
+},
+"midwest": {
+"youth": "1rZDD34xtK9EnaKLV8VNyrQaaIlHBpopX",
+"le": "1Tu3OaawrXDXqLD2CA0r3DocFUqfVewS-oVWJZP9aQVI",
+"offle": "1e9-QfspEHqmSxTrqc7PAKGvHzz-auHYOIbP6620GlAM",
+"psd": "12HaRRjBj2CelUfVHA-E99Q25Pg5SZaq-Sz7d8hpmKyY",
+"pva": "1FNDSwUjNLocaSca76Vs6HbtUJHJCoiaWyF6U6HdHA6A",
+"lay": "1J0g8Dg9CCdbpzx_GYc2t-vIzCHpfyO0m",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "1pw00ZRhLOm5VNiDrN4IU95Zst-dKrvQW",
+"txp": "17X_j6ugFEKGKuiO9M2xkTv5wwhWK0TAD",
+"fire": "1gAnlE_DC83h2N6abAXNTANNCbAizC8ERzU2lpfMCxaA",
+"torn": "1CY4CFnWwWcsJ9yV5d0E_dFZjZIvLGGi0fTkf_NKmrOs",
+"shake": "1Aa_n8gpWUXbo7wHjXlmveSpjnQpnGB63Vl95LNwrL10",
+"wx": "1FFrryIpEOMcavXK3_tylVXkX9yFztjWD",
+"pyd": "p:1CL4ivSJK5slVaFP3OsGRR3Ykv2gUED482MrQ-s-LhYQ",
+"hou": "1AulQhQtGaNQ_nhd0pIeyha-hT4Zn12bU",
+"radio": "158T9b9MqV-4y0yK2yTYYpE8dx8J8jjvCJbXgElrMJec"
+},
+"northeast": {
+"youth": "1Km8ZOuPPVdbar1kS9Y_554dBS_sUy1Yo",
+"le": "1bu3PB9Yvr2GmEKJMpue0TG1Kb2-ixKe1OxGZGFT_Gwk",
+"offle": "1uNAekXbfZ2LtbRkcnG2xtITebeDWV2-4lGsDUSH0Zxs",
+"psd": "18sZ3T6CAVbEBQRzs_V0JS0vj-APlI8nZ1npaP6hI1kc",
+"pva": "1ZBE0ybOYX1uvXiigiE3Spmh7FQCjNuKccW29XdvZycI",
+"lay": "1Vw0rPRW5r6LIHqimjr5_rDHgFGjPDKWd",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "1QcbOkQ0GtsDK7Pi4HPRwxwjA700nbuCe",
+"txp": "189_JAZWD3O_JsAYiBzgsFROulSQfTkJX",
+"fire": "1hYdD0juDSkGj8PDGUIbSzUxYDXkrL6IKt4BENv23GdA",
+"torn": "1DBXweyx6WkkNzLusSnW5TxoiYdUyH5PgCS8UoiNbRGw",
+"shake": "1UWVwIgp92vAE6H8aw7dz5J6yS3ZfkfLijHBUYj0ipRY",
+"wx": "1e_BB7ydvjsncOQVGeYUnxh6Wr-8WE4O3",
+"pyd": "p:1_3P8orVcjHMQIpuY0t9nHDlY7O6uaM4EA8DIWoBvPss",
+"hou": "1QXp_SdFDO0K2aONx0HIn2GPWwa63aKFs",
+"radio": "1dNHrKutodKusnwJUMS3cKAHEw2bI9h7dRJg1wXtosIM"
+},
+"southeast": {
+"youth": "15hodnf9sz5I5ZtaCmvElhwhmnpa-whvY",
+"le": "1iXKW75Xc1u14BtbtKBB6cnjcMoqU5Aw18-pZfbLRIP4",
+"offle": "1AJdXIah7JWuk_jqWWj9X6lVSiyHOgfuqkRpbCxfTFC8",
+"psd": "15-Hypb2L-NuUETz1T83RoDIMUY5J9jjSywVG6KF1fAY",
+"pva": "1v0A1yqEeVRrwaokxxp0sfcULSe0XI9WktOhlqF-872w",
+"lay": "1ta9GXjvNEeup7-LYQhjAn7DTPycFl0mA",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "1pxlut11dU5ABIhqFj0BEbBOpt74kDIUP",
+"txp": "1BoWA95tZWQQ1Tzd7XjHXUglHfe0FA0zp",
+"fire": "1sYEyJAMI-cP4uZNaQ80SgHuPvEE5lSol3ukKYa0pyg0",
+"torn": "1Rj6qH1mre7R4zZSLBFYvEueAVsFEZ16YbOC4d4I3Cdw",
+"shake": "1rSMhjvBc2jY5RowYgvHGi_p5zqWcWE8bfGQGhhOYlNo",
+"wx": "1eSgUA5ygINFwGl48-ltzVC77k8mBvMX9",
+"pyd": "p:1iPC6pacs2P72aS6R4yTbESxnG8pSRoQdRkc1yGzRLnY",
+"hou": "1X7K8-MAQuE-0Enw0VMlVsSqZDYnRK-Tj",
+"radio": "18Mv2dsmMefb9BUNaZXC23X1CVeiMtGUdrgTMt7dQuc4"
+},
+"southwest": {
+"youth": "16elvUCdNEFhOn8fv-ge62fOZm11LF5JI",
+"le": "1i_Yw6mJPZnhq-o7hzC2AhW5ZqvY5TM3_PyUmqmYOof0",
+"offle": "1nT56Cz8tsjS1xmV6EiIxZCFDBeKfBgTAYoI8Av0-Hvw",
+"psd": "1hpgFBIjv4QjyQN3XRIfcTSCpY9-OVWpRnTTNh_0s5u0",
+"pva": "16KIV_J1Dp-2OAOn21j_rquQ1SxEsuB8WauEXWLaRvQ8",
+"lay": "17w04DqtKq8sXN6jdCZF4pguddyxieb3i",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "1ZG_uPiWnI3H_vJiB6knahxy_r6BzJxbl",
+"txp": "1tea0HnATWygP_sLGyJ-mhhbi4NIYVOx_",
+"fire": "1v-0_E9R_n8S2oDAOymBh_o_-6EIjWjBmkXxv5BGgR_Y",
+"torn": "1oEF6fIHYe4GLSt8dTUPGHfqc1wzGdAyDxU-G4-YHyws",
+"shake": "1v43zuLJ7-99lwxNOx1nf0_YStODG3IlytP4AawZDeBg",
+"wx": "17qf8taYqau1k7ZmfVMTbW3RVY_i4LD_9",
+"pyd": "p:10HmDJNAH-X9f1mEywpCYlaSdh6k2pSedhRQ8iAPpckc",
+"hou": "1hxWAcXYzzYRAY0yjfKLbLe235yDJv_ps",
+"radio": "1XwNo9MusCuDYfy8E-xZfKpZ0i5vWC26n9e_fkYQbn9I"
+},
+"west": {
+"youth": "1NW1T0hpIlBj33-vMPDKJfelCuQsGVQi4",
+"le": "1q2dkLd936xoMKoa3ipwumr5d7_UA7wPps4RgCMTjStI",
+"offle": "16sgibswR_ZAkCk1Nm4EMDdlplpRewaQ1EfMpuUy0UC8",
+"psd": "1iYG9fIoPunVnYoFGH7LcBcAYBrUx3R45GCBnkFU2_Vw",
+"pva": "1YVhGsGqBQLeZyqlugnLVP9DYYeHJiDVFHvFw8_VKR5A",
+"lay": "1bnQjHr_F5yCnED18BUaaih8Usur6eTXF",
+"camp": "1DblJDnSpao4qZIHGjB9ctnVSTAk2ZgP2xp6wOTxGFZw",
+"txg": "1OrZJ32bFJBIph3EtsIg9BnruQ3lCxfQw",
+"txp": "1zWLhb0l9up-8Y5kUXhfNCBAZPT5V32va",
+"fire": "1QpMydq_8SJnKG3wRutrH00qxWoDAN2E0pomMuLBaW8c",
+"torn": "1x-2enIpoMJ3QfTG8wAXYEpoo1V32IB3wFN5n6IOgA9I",
+"shake": "1GLZPbY2aWtAVP076yrwYf1LezP1RnPMZ4HNQDWCnnuw",
+"wx": "16KFmzNuMlQoz8KEBgML-0eQlWAf5ioOS",
+"pyd": "p:1IL4eo1b9UhT0meJH7V4Orpgw-TfGGoba48OOJ4BARhE",
+"hou": "1vIIXx908BriVcgY0P1vjI54Z4VSAdhYb",
+"radio": "1T8zbG2lBVGdLgA3cOCpJSym-qMpNRvUkb30fhxrZLJs"
+}
+}
+};
+const REGIONS=['central','florida','midwest','northeast','southeast','southwest','west'];
+const RN={central:'Central',florida:'Florida',midwest:'Midwest',northeast:'Northeast',southeast:'Southeast',southwest:'Southwest',west:'West'};
+const COC={central:'148487',florida:'150164',midwest:'151074',northeast:'149710',southeast:'149313',southwest:'148695',west:'151970'};
+const SURV={central:'152932',florida:'155922',midwest:'155032',northeast:'154718',southeast:'154277',southwest:'153888',west:'156443'};
+const MF=id=>'https://vrm-forms.theismailiusa.org/view.php?id='+id;
+
+const DEPTS=[
+ {id:'iv',page:'ismaili-volunteer',name:'Ismaili Volunteers',short:'IV',desc:'Policies, onboarding and registration, uniforms and the MyKhidma app for every adult volunteer.'},
+ {id:'youth',page:'iv-youth',name:'IV Youth',short:'Youth',desc:'Camp Khidma, Youth Extravaganza, PYD training, youth check-ins, duty mapping and settlement.'},
+ {id:'training',page:'training',name:'Training',short:'Training',desc:'Communication, leadership, seva and volunteer-management modules, plus DMT and S&S training masters.'},
+ {id:'safety',page:'safety-security',name:'Safety & Security',short:'S&S',desc:'Physical security, PVAs, JK layouts, EOP, event, camp and REC/ECDC security, law-enforcement engagement.'},
+ {id:'dmt',page:'dmt',name:'Disaster Management (DMT)',short:'DMT',desc:'DMT structure, texting tool, response plans, drills, preparedness content and weather infographics.'},
+ {id:'incidents',page:'incident-reporting',name:'Incident Reporting',short:'Incidents',desc:'Report an incident, the leadership portal and the user guide.'},
+ {id:'admin',page:'administrative-documents',name:'Admin & Trackers',short:'Admin',desc:'Regional priority trackers, team directories and national completion trackers.'}
+];
+
+// region resources -> department + section + label
+const RMAP=[
+ ['coc','iv','Code of Conduct sign-off','Code of Conduct sign-off (MacForms)'],
+ ['surv','iv','Volunteer survey','Ismaili Volunteer Survey (MacForms)'],
+ ['youth','youth','Youth check-in','IV Youth Check-In 2026'],
+ ['pyd','youth','PYD training','PYD: Empowering Youth, Creating Leaders'],
+ ['le','safety','Law enforcement','Law Enforcement Engagement responses'],
+ ['offle','safety','Law enforcement','Off-Duty Law Enforcement responses'],
+ ['psd','safety','Physical security','JK Physical Security Dashboard'],
+ ['pva','safety','Physical security','PVA Response Sheet'],
+ ['lay','safety','Physical security','JK Layouts (emergency, fire, tornado maps)'],
+ ['camp','safety','Camp','Completed 2026 Camp Checklists'],
+ ['fire','dmt','Drill completion','JK Fire Drill Completion Report'],
+ ['torn','dmt','Drill completion','JK Tornado Drill Completion Report'],
+ ['shake','dmt','Drill completion','JK Shakeout Completion Report'],
+ ['txg','dmt','Texting tool','Texting Tool Graphics'],
+ ['txp','dmt','Texting tool','Texting Tools Poster'],
+ ['wx','dmt','Weather','Weather & Advisory Template'],
+ ['hou','training','Regional training','Houston Training: EOP, Security L1, Risk Mgmt'],
+ ['radio','admin','Miscellaneous','Radio Budget Exercise']
+];
+const RKIND={coc:'w',surv:'w',youth:'F',pyd:'p',le:'s',offle:'s',psd:'s',pva:'s',lay:'F',camp:'d',fire:'s',torn:'s',shake:'s',txg:'f',txp:'f',wx:'F',hou:'F',radio:'s'};
+
+// Handover 2026 set (DRAFT)
+const HANDOVER=[
+ {t:'IV National Hub 2026 (DRAFT) – the shared folder',k:'F:1KD38MwRXGqjjqW5sQUbff5wnHJcIZZ2y'},
+ {t:'00 – Live Forms & Links',k:'d:1SxOlyo6x_HarWOvg3YS5CV-HXaH0FnmUENx54Nqq8u4'},
+ {t:'00 – Start Here: IV National Handover 2026',k:'d:14JMYHUHZgCbIAXH39OMiGfW9GD6r78JT0XpGNwGs4IE'},
+ {t:'02 – IV Handbook & Terms of Reference 2026',k:'d:1lbvitpddhzydUwPYKEyDZniMu2e_DxjJ2d6-VViNJRA'},
+ {t:'03 – Onboarding, Registration & Training',k:'d:1xOcZtKq3-p-QMVL5ydtPK2Yhgiv5KCeMG_HMvUC81E4'},
+ {t:'04a – Uniform Supply Setup',k:'d:1Qo6mejAF52-xHCXfLte_jmPZFdH9kl54BmVSHJ1a-7I'},
+ {t:'05 – Volunteer Leadership Orientation (VLO) 2026',k:'d:1oWM01l-4RLMW3vyEyKO0o3KXcPAKSqXyLfGPiwKwIAk'},
+ {t:'05 – VLO 2026 Decks (7, rebranded)',k:'F:1MF6S-4gM5Cjw_6FjrQ438oVUJUSd__AD'},
+ {t:'07 – Multi-Faith Families',k:'d:108raTGqtuoF-dKDo_I-x9UoyBT7NewDhLpUlFZy-8Xs'},
+ {t:'07a – MFF Sample Regional Deck',k:'f:1R2INKWqSq9xQuAEX63w0de8hVFvOHkxG'}
+];
+
+// In the Drive, not on the dashboard
+const GAPS=[
+ {d:'iv',t:'IV Handbook & Terms of Reference 2026 (DRAFT)',k:'d:1lbvitpddhzydUwPYKEyDZniMu2e_DxjJ2d6-VViNJRA',why:'Dashboard still points to the TORs folder (2019 TOR).'},
+ {d:'iv',t:'VLO 2026 Overview',k:'d:1IJDfYqYriMt2Pm5bgemFrV8oBOGvR448eT1XNKngllE',why:'Session list and 6-hour sample day for VLO.'},
+ {d:'iv',t:'Volunteer Leadership Orientation Guide (Nov 2025)',k:'d:1qxIkoFx6SZP_PA9jRlQTfkaztHWO5wuzW_TVeTtoc7g',why:'Leader orientation guide; not linked anywhere.'},
+ {d:'iv',t:'Volunteer Life Cycle – Phase 1',k:'p:1wNdX_p_cKpn6FT2v9hHbk1H5qbWHx_ftDs2ijRogz0Q',why:'Lifecycle plan (DRAFT).'},
+ {d:'iv',t:'New 8-module Volunteer Orientation (DRAFT)',k:'p:1IVgFsS9pbVOgLZh02Emk_MmuU1vIhJzOR_XHnb3ZzrM',why:'Noreen’s new standard orientation deck.'},
+ {d:'iv',t:'JK IV Structure – Current and Proposed',k:'p:10hbr6-wcG6MCaB_jC7tpfXj65guMa2bsmhS2gZ-eAB4',why:'Small / Medium / Large JK structure.'},
+ {d:'iv',t:'Nomex – Current Process / Region',k:'p:1-fIL4VpBiv1wEZtJlV3YXFIP_l9w3-0Y2ELdsFICKTQ',why:'Nominations process.'},
+ {d:'iv',t:'5. Director Role – Resources',k:'F:1--owq_-PTvqHrRWsxS3Vs10hNTZoONsF',why:'JK Director role, orientation and scenarios.'},
+ {d:'iv',t:'7. Multi-Faith Families',k:'F:1-3lf17vggvJS_xjChFL8GkhWythYUPc_',why:'MFF folder; handover doc 07 covers the framework.'},
+ {d:'iv',t:'IV Counts',k:'s:1rEMd_lvSmUTDyLkbHu51X2j04PYjp2drJjhx19Fqbu8',why:'Volunteer counts used for uniform planning.'},
+ {d:'iv',t:'8. Regional MacForm – COC & Survey 2025',k:'F:13PKgro59tY5WP0rSrHV3CDfdoZTyi6c1',why:'Source folder for the regional sign-off forms.'},
+ {d:'youth',t:'6. Celebrations of Service',k:'F:1--tulPcgW4lB4IK3tDgXsbJSlJ1xYEBt',why:'COS 2024 materials.'},
+ {d:'iv',t:'1. MyKhidma App folder',k:'F:1SDViCiwPlEw3cHkyLrPU4GKXB8w6osnr',why:'App documents and decks.'}
+];
+
+// Health check
+const FLAGS=[
+ {sev:'crit',st:'open',d:'youth',where:'Florida page',issue:'"PYD – Empowering Youth" link is empty and opens nothing.',fix:'Open item: Florida PYD deck to be sourced.'},
+ {sev:'crit',st:'fixed',d:'all',where:'Whole Drive',issue:'Files were owned by personal Gmail accounts.',fix:'Done: everything copied into the IV National Hub 2026 folder, to be shared as one folder with National IV.'},
+ {sev:'crit',st:'open',d:'all',where:'Hub copy',issue:'6 linked files could not be copied (no access for the hub account): Camp Khidma items, JK EOP Training Invite, a Business Preparedness file, and the Fire Drill / Dashboard / EOP Completion Tracker.',fix:'Open item: owner (nationalssteam2019) to share them, then re-copy.'},
+ {sev:'warn',st:'fixed',d:'iv',where:'Ismaili Volunteer › Onboarding',issue:'TORs link opened the 2019 TOR folder.',fix:'Done: now points to IV Handbook & TOR 2026 (DRAFT).'},
+ {sev:'warn',st:'fixed',d:'iv',where:'Ismaili Volunteer › Uniforms',issue:'"New Uniform Items Ordering Form" opened the Shopify store.',fix:'Done: renamed "IV Uniform Store (Directors, Regional & IV Leads)".'},
+ {sev:'warn',st:'fixed',d:'dmt',where:'DMT › Institutional Response Plan',issue:'"After Action Report – BLANK" opened the completed Hurricane Ian sample.',fix:'Done: new blank template (DRAFT) built; sample relabelled.'},
+ {sev:'warn',st:'fixed',d:'youth',where:'IV Youth › Youth Extravaganza',issue:'"YE Content 2026" opened the 2025 doc.',fix:'Done: 2026 row hidden until content exists.'},
+ {sev:'warn',st:'open',d:'training',where:'Training › Effective Communications',issue:'"3 Level Role Play" opens the 60-minute module deck; no role-play file found in Drive.',fix:'Open item: Training to supply the role-play file.'},
+ {sev:'warn',st:'fixed',d:'admin',where:'DMT vs Admin pages',issue:'Two DMT directories linked under the same name.',fix:'Done: kept both, labelled 2023-24 (archive) and 2024-25.'},
+ {sev:'warn',st:'open',d:'incidents',where:'Incident Reporting',issue:'"Onboarding" opens the JK incident form; FAQ and orientation still "forthcoming".',fix:'Open item.'},
+ {sev:'warn',st:'fixed',d:'youth',where:'IV Youth',issue:'"Youth Training" heading had no links.',fix:'Done: merged into "Youth Training (PYD & more)".'},
+ {sev:'info',st:'fixed',d:'dmt',where:'All region pages',issue:'Typo "Torando".',fix:'Done: Tornado.'},
+ {sev:'info',st:'fixed',d:'safety',where:'S&S, DMT, Training',issue:'Master JK EOP deck labelled 2023 and 2024.',fix:'Done: "Master JK EOP Deck" everywhere.'},
+ {sev:'info',st:'open',d:'dmt',where:'DMT vs Training',issue:'Two near-identical "Monitoring and Reporting" decks; DMT link says Sept 2023 but file is Aug 2023.',fix:'Open item.'},
+ {sev:'info',st:'open',d:'dmt',where:'DMT › Shakeout marketing',issue:'Campaign posters date from 2018–2019.',fix:'Open item: DMT to archive or refresh.'},
+ {sev:'info',st:'fixed',d:'iv',where:'Ismaili Volunteer',issue:'Handover set was not linked.',fix:'Done: handover docs moved into the hub ("00 Handover 2026").'}
+];
+
+const TYPE={d:['doc','DOC'],s:['sheet','SHEET'],p:['slides','DECK'],F:['folder','FOLDER'],f:['pdf','FILE'],g:['form','FORM'],y:['video','VIDEO'],w:['web','WEB'],soon:['soon','SOON'],page:['web','PAGE']};
+const MIXC={doc:'#3B6FB6',sheet:'#2E8A57',slides:'#C98A1B',folder:'#6B7686',form:'#7A4FB0',pdf:'#B3473E',web:'#0B2A4A',video:'#C0392B',soon:'#A8A39A'};
+function url(k){
+  const i=k.indexOf(':');const c=k.slice(0,i),id=k.slice(i+1);
+  switch(c){
+    case 'd':return 'https://docs.google.com/document/d/'+id+'/edit';
+    case 's':return 'https://docs.google.com/spreadsheets/d/'+id+'/edit';
+    case 'p':return 'https://docs.google.com/presentation/d/'+id+'/edit';
+    case 'F':return 'https://drive.google.com/drive/folders/'+id;
+    case 'f':return 'https://drive.google.com/file/d/'+id+'/view';
+    case 'g':return id.startsWith('1FAIpQL')?'https://docs.google.com/forms/d/e/'+id+'/viewform':'https://docs.google.com/forms/d/'+id+'/viewform';
+    case 'y':return 'https://www.youtube.com/watch?v='+id;
+    case 'w':return 'https://'+id;
+    case 'page':return '#regions';
+    default:return null;
+  }
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const kindOf=k=>k==='soon'?'soon':k.slice(0,k.indexOf(':'));
+
+// Build flat index
+const ALL=[];
+for(const d of DEPTS){
+  for(const sec of (DATA.pages[d.page]||[])){
+    for(const it of sec.items){
+      if(it.k.startsWith('page:'))continue;
+      const reg=REGIONS.find(r=>it.t.toLowerCase().startsWith(RN[r].toLowerCase()+' '));
+      ALL.push({dept:d.id,sec:sec.s,t:it.t,k:it.k,reg:reg||null});
+    }
+  }
+}
+for(const r of REGIONS){
+  const rd=DATA.regions[r]||{};
+  for(const [key,dept,sec,label] of RMAP){
+    let k;
+    if(key==='coc')k='w:'+MF(COC[r]).slice(8);
+    else if(key==='surv')k='w:'+MF(SURV[r]).slice(8);
+    else{const v=rd[key];if(!v)continue;if(v==='BROKEN'){ALL.push({dept,sec:'Your region',t:RN[r]+' – '+label,k:'soon',reg:r,regional:1,broken:1});continue}
+      k=v.startsWith('p:')?v:(RKIND[key]+':'+v)}
+    ALL.push({dept,sec:'Your region',t:RN[r]+' – '+label,k,reg:r,regional:1,sub:sec});
+  }
+}
+// dedupe identical (dept,t,k)
+const seen=new Set();for(let i=ALL.length-1;i>=0;i--){const s=ALL[i].dept+'|'+ALL[i].t+'|'+ALL[i].k;if(seen.has(s))ALL.splice(i,1);else seen.add(s)}
+// mark issues on items
+const DUP={};ALL.forEach(x=>{if(x.k!=='soon'&&!x.regional){DUP[x.dept+x.k]=(DUP[x.dept+x.k]||0)+1}});
+ALL.forEach(x=>{
+  if(/Torando/.test(x.t))x.t=x.t.replace('Torando','Tornado');
+  if(x.k==='soon')x.soon=1;
+  if(/\[Pending\]/.test(x.t))x.pending=1;
+  if(x.t==='New Uniform Items Ordering Form'){x.t='IV Uniform Store (leads only)';x.note='Shopify'}
+  if(x.t==='Term of Reference (TORs)')x.old=1;
+  if(!x.regional&&DUP[x.dept+x.k]>1)x.dup=1;
+});
+
+let state={region:null,q:''};
+try{const r=localStorage.getItem('ivdash-region');if(REGIONS.includes(r))state.region=r}catch(e){}
+
+function resCard(x){
+  const k=kindOf(x.k);const [cls,lab]=TYPE[k]||TYPE.w;const u=x.k==='soon'?null:url(x.k);
+  const pills=[];
+  if(x.reg)pills.push('<span class="pill reg">'+RN[x.reg]+'</span>');
+  if(x.sub)pills.push('<span class="pill">'+esc(x.sub)+'</span>');
+  if(k==='g')pills.push('<span class="pill">Form</span>');
+  if(x.broken)pills.push('<span class="pill crit">Broken link</span>');
+  if(x.soon&&!x.broken)pills.push('<span class="pill warn">Forthcoming</span>');
+  if(x.pending)pills.push('<span class="pill warn">Pending</span>');
+  if(x.dup)pills.push('<span class="pill warn">Same file as another link</span>');
+  if(x.old)pills.push('<span class="pill warn">2019 version</span>');
+  if(x.draft)pills.push('<span class="pill draft">DRAFT</span>');
+  if(x.restricted)pills.push('<span class="pill crit">Restricted</span>');
+  if(x.note)pills.push('<span class="pill">'+esc(x.note)+'</span>');
+  const inner='<span class="type ty-'+cls+'">'+lab+'</span><span style="min-width:0"><span class="t">'+esc(x.t)+'</span>'+(pills.length?'<span class="m">'+pills.join('')+'</span>':'')+(x.why?'<span class="m" style="color:var(--muted);font-size:13px">'+esc(x.why)+'</span>':'')+'</span>';
+  return u?'<a class="res" href="'+esc(u)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="res" aria-disabled="true">'+inner+'</div>';
+}
+function inRegion(x){return !state.region||!x.reg||x.reg===state.region}
+function deptItems(id){return ALL.filter(x=>x.dept===id)}
+function mixBar(items){
+  const c={};items.forEach(x=>{const k=(TYPE[kindOf(x.k)]||TYPE.w)[0];c[k]=(c[k]||0)+1});
+  const n=items.length||1;return '<div class="mix" aria-hidden="true">'+Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<i style="width:'+(v/n*100)+'%;background:'+MIXC[k]+'"></i>').join('')+'</div>';
+}
+function flagsFor(id){return FLAGS.filter(f=>f.d===id&&f.st!=='fixed')}
+
+function quickActions(){
+  const r=state.region;
+  const qa=[
+    ['!','Report an incident','JK, external or camp incident form','https://www.incidentreport.xyz/report_incident.php'],
+    ['✓',r?'Sign the Code of Conduct ('+RN[r]+')':'Sign the Code of Conduct','Regional MacForms sign-off'+(r?'':' · pick a region'),r?MF(COC[r]):'#iv'],
+    ['$','Order uniforms','IV store · Directors, Regional Leads, IV Leads','https://ivuniform.myshopify.com'],
+    ['+','Request CPR / First Aid / AED','DMT training request form','https://docs.google.com/forms/d/e/1FAIpQLScUmEEWwFnsmXr7aADWoW_hCw6CkJeHRWa1iNv9-BgiW67YWA/viewform'],
+    ['F','Log a fire drill','Fire Drill Completion Report','https://docs.google.com/forms/d/e/1FAIpQLSf9_Ea204EP40jRgtKfinx_7SECe9EuHyDJUIPY8e-n1VnOzQ/viewform'],
+    ['T','Log a tornado drill','Tornado Drill Completion Report','https://docs.google.com/forms/d/e/1FAIpQLScoAsH_XxSdsJR1_zqJfZokEWUSdonsQRQpAd0CblTVuUwYpw/viewform'],
+    ['E','Log a Shakeout drill','Earthquake drill completion report','https://docs.google.com/forms/d/e/1FAIpQLSes4_2ZlM4qTFTJO9UtAraGOHe_ZcOhUOK-eaaeFBBrxDfjDw/viewform'],
+    ['V','Run a PVA','JK Premises Vulnerability Assessment','https://docs.google.com/forms/d/12mxA0C2oBC5HxOOLnWTijN329PmSzAz_sYlJddIyzUE/viewform'],
+    ['◆','Register an event','Regional Event Tracker (S&S)','https://docs.google.com/forms/d/e/1FAIpQLSfBJqjBZokYlmO8qyD82gVfv7_y6z8LBWV1qI3DWZ648CiuDw/viewform'],
+    ['L','Log law-enforcement contact','Law Enforcement Engagement form','https://forms.gle/zCw578a2EEcrzzNU8']
+  ];
+  return '<div class="grid">'+qa.map(([i,t,s,u])=>{const ext=!u.startsWith('#');return '<a class="qa" href="'+esc(u)+'"'+(ext?' target="_blank" rel="noopener"':'')+'><span class="ic">'+esc(i)+'</span><span><b>'+esc(t)+'</b><small>'+esc(s)+'</small></span></a>'}).join('')+'</div>';
+}
+
+function viewOverview(){
+  const total=ALL.length;const crit=FLAGS.filter(f=>f.sev==='crit'&&f.st!=='fixed').length;const warn=FLAGS.filter(f=>f.sev==='warn'&&f.st!=='fixed').length;
+  const forms=ALL.filter(x=>kindOf(x.k)==='g').length;
+  let h='<h3>Overview</h3><h1>Everything National IV runs, by department</h1><p class="lede">Seven departments, seven regions and the 2026 handover set in one place. Pick your region at the top to see your own trackers and forms first.</p>';
+  h+='<div class="stats"><div class="stat"><b>'+total+'</b><span>resources linked</span></div><div class="stat"><b>7</b><span>departments</span></div><div class="stat"><b>7</b><span>regions with their own trackers</span></div><div class="stat"><b>'+forms+'</b><span>forms to submit</span></div><div class="stat alert"><b>'+(crit+warn)+'</b><span>links to fix ('+crit+' critical)</span></div><div class="stat"><b>'+GAPS.length+'</b><span>Drive items not on the site</span></div></div>';
+  h+='<div class="section"><div class="shead"><h2>Quick actions</h2><span class="pill">'+(state.region?'Showing '+RN[state.region]:'All regions')+'</span></div>'+quickActions()+'</div>';
+  h+='<div class="section"><div class="shead"><h2>Departments</h2></div><div class="grid">'+DEPTS.map(d=>{const it=deptItems(d.id);const fl=flagsFor(d.id).length;return '<a class="deptcard" href="#'+d.id+'"><div class="row"><h2 style="font-size:18px">'+esc(d.name)+'</h2><span class="cnt">'+it.length+'</span></div>'+mixBar(it)+'<p>'+esc(d.desc)+'</p>'+(fl?'<span><span class="pill warn">'+fl+' to fix</span></span>':'<span><span class="pill ok">No issues found</span></span>')+'</a>'}).join('')+'<a class="deptcard" href="#handover"><div class="row"><h2 style="font-size:18px">Handover 2026</h2><span class="cnt">'+HANDOVER.length+'</span></div><div class="mix"><i style="width:100%;background:var(--gold)"></i></div><p>The DRAFT handover set for the incoming National leadership, from 12 Dec 2026.</p><span><span class="pill draft">DRAFT</span></span></a></div></div>';
+  h+='<div class="section"><div class="shead"><h2>Needs attention</h2><a href="#review" style="font-size:13px">See the full health check</a></div><div class="tablewrap"><table><thead><tr><th>Issue</th><th>Where</th><th>Fix</th></tr></thead><tbody>'+FLAGS.filter(f=>f.st!=='fixed').map(f=>'<tr><td><span class="sev '+f.sev+'"></span>'+esc(f.issue)+'</td><td>'+esc(f.where)+'</td><td>'+esc(f.fix)+'</td></tr>').join('')+'</tbody></table></div></div>';
+  return h;
+}
+
+function viewDept(d){
+  const it=deptItems(d.id).filter(inRegion);
+  const mine=it.filter(x=>x.regional);
+  const secs=[];const order=[];
+  const mineK=new Set(mine.map(x=>x.k));
+  it.filter(x=>!x.regional&&!(state.region&&mineK.has(x.k))).forEach(x=>{if(!secs[x.sec]){secs[x.sec]=[];order.push(x.sec)}secs[x.sec].push(x)});
+  const gaps=GAPS.filter(g=>g.d===d.id);
+  let h='<h3>Department</h3><h1>'+esc(d.name)+'</h1><p class="lede">'+esc(d.desc)+'</p>';
+  h+='<div class="stats"><div class="stat"><b>'+deptItems(d.id).length+'</b><span>resources</span></div><div class="stat"><b>'+order.length+'</b><span>sections</span></div><div class="stat"><b>'+deptItems(d.id).filter(x=>kindOf(x.k)==='g').length+'</b><span>forms</span></div><div class="stat'+(flagsFor(d.id).length?' alert':'')+'"><b>'+flagsFor(d.id).length+'</b><span>to fix</span></div></div>';
+  if(state.region&&mine.length)h+='<div class="section"><div class="shead"><h2>'+RN[state.region]+' region</h2><span class="pill reg">Your region</span></div><div class="list">'+mine.map(resCard).join('')+'</div></div>';
+  else if(!state.region&&deptItems(d.id).some(x=>x.regional))h+='<div class="callout">This department has region-specific trackers. Pick a region at the top to see them here.</div>';
+  for(const s of order)h+='<div class="section"><div class="shead"><h2>'+esc(s)+'</h2><span class="cnt" style="color:var(--muted);font-size:13px">'+secs[s].length+'</span></div><div class="list">'+secs[s].map(resCard).join('')+'</div></div>';
+  if(gaps.length)h+='<div class="section"><div class="shead"><h2>In the Drive, not on the dashboard</h2><span class="pill warn">Suggested additions</span></div><div class="list">'+gaps.map(g=>resCard(Object.assign({},g,{reg:null}))).join('')+'</div></div>';
+  const fl=flagsFor(d.id);
+  if(fl.length)h+='<div class="section"><div class="shead"><h2>To fix</h2></div><div class="tablewrap"><table><thead><tr><th>Issue</th><th>Where</th><th>Fix</th></tr></thead><tbody>'+fl.map(f=>'<tr><td><span class="sev '+f.sev+'"></span>'+esc(f.issue)+'</td><td>'+esc(f.where)+'</td><td>'+esc(f.fix)+'</td></tr>').join('')+'</tbody></table></div></div>';
+  return h;
+}
+
+function viewRegions(){
+  let h='<h3>Regions</h3><h1>Regional view</h1><p class="lede">Each region has its own sign-off forms, security sheets, drill reports and training folders. Pick one to see all of them together.</p>';
+  h+='<div class="regiongrid">'+REGIONS.map(r=>'<button class="regbtn" data-reg="'+r+'" aria-pressed="'+(state.region===r)+'"><b>'+RN[r]+'</b><span style="color:var(--muted);font-size:13px">'+ALL.filter(x=>x.reg===r).length+' resources</span></button>').join('')+'</div>';
+  const r=state.region;
+  if(!r)return h+'<p class="empty" style="margin-top:18px">No region selected yet.</p>';
+  for(const d of DEPTS){const it=ALL.filter(x=>x.reg===r&&x.dept===d.id);if(!it.length)continue;
+    h+='<div class="section"><div class="shead"><h2>'+esc(d.name)+'</h2><span class="cnt" style="color:var(--muted);font-size:13px">'+it.length+'</span></div><div class="list">'+it.map(resCard).join('')+'</div></div>'}
+  return h;
+}
+
+function viewHandover(){
+  let h='<h3>Handover 2026</h3><h1>Leadership handover set</h1><p class="lede">Prepared for the incoming National IV leadership, who take over on <b>12 December 2026</b>. Every document is a DRAFT until approved. Restricted documents contain logins or store access; share them only with the people named inside.</p>';
+  h+='<div class="list">'+HANDOVER.map(x=>resCard(Object.assign({draft:1},x))).join('')+'</div>';
+  h+='<div class="callout"><b>Key date:</b> 12 Dec 2026, the incoming National IV leadership takes over. Change the app and store passwords on the day.</div>';
+  return h;
+}
+
+function viewReview(){
+  let h='<h3>Health check</h3><h1>What to fix before handover</h1><p class="lede">Found by checking every link on the current site against the Drive on 4 Nov 2026. Decisions recorded 4–5 Nov 2026.</p>';
+  const OP=FLAGS.filter(f=>f.st!=='fixed');const c=OP.filter(f=>f.sev==='crit').length,w=OP.filter(f=>f.sev==='warn').length,i=FLAGS.filter(f=>f.st==='fixed').length;
+  h+='<div class="stats"><div class="stat alert"><b>'+c+'</b><span>critical open</span></div><div class="stat"><b style="color:var(--warn)">'+w+'</b><span>should fix (open)</span></div><div class="stat"><b>'+i+'</b><span>fixed</span></div><div class="stat"><b>'+GAPS.length+'</b><span>Drive items missing from the site</span></div></div>';
+  h+='<div class="section"><div class="shead"><h2>Link and content issues</h2></div><div class="tablewrap"><table><thead><tr><th>Severity</th><th>Issue</th><th>Where</th><th>Fix</th></tr></thead><tbody>'+FLAGS.map(f=>'<tr><td><span class="sev '+f.sev+'"></span>'+({crit:'Critical',warn:'Should fix',info:'Tidy-up'}[f.sev])+'<br><span class="pill '+(f.st==='fixed'?'ok':'warn')+'">'+(f.st==='fixed'?'Fixed':'Open')+'</span></td><td>'+esc(f.issue)+'</td><td>'+esc(f.where)+'</td><td>'+esc(f.fix)+'</td></tr>').join('')+'</tbody></table></div></div>';
+  h+='<div class="section"><div class="shead"><h2>In the Drive, not on the dashboard</h2></div><div class="list">'+GAPS.map(g=>resCard(Object.assign({},g,{note:(DEPTS.find(d=>d.id===g.d)||{}).short}))).join('')+'</div></div>';
+  return h;
+}
+
+function viewSearch(q){
+  const ql=q.toLowerCase();const terms=ql.split(/\s+/).filter(Boolean);
+  const pool=ALL.concat(HANDOVER.map(x=>Object.assign({dept:'handover',sec:'Handover 2026',draft:1},x)),GAPS.map(g=>Object.assign({sec:'Not on dashboard'},g,{dept:g.d})));
+  const res=pool.filter(x=>inRegion(x)&&terms.every(t=>(x.t+' '+x.sec+' '+((DEPTS.find(d=>d.id===x.dept)||{}).name||'')).toLowerCase().includes(t)));
+  let h='<h3>Search</h3><h1>'+res.length+' result'+(res.length===1?'':'s')+' for “'+esc(q)+'”</h1>';
+  if(state.region)h+='<p class="lede">Filtered to '+RN[state.region]+' plus national resources.</p>';
+  const by={};res.forEach(x=>{const n=x.dept==='handover'?'Handover 2026':((DEPTS.find(d=>d.id===x.dept)||{}).name||'Other');(by[n]=by[n]||[]).push(x)});
+  for(const [n,list] of Object.entries(by))h+='<div class="section"><div class="shead"><h2>'+esc(n)+'</h2><span class="cnt" style="color:var(--muted);font-size:13px">'+list.length+'</span></div><div class="list">'+list.map(resCard).join('')+'</div></div>';
+  if(!res.length)h+='<p class="empty">Nothing matches. Try a shorter word, such as "drill", "PVA" or "camp".</p>';
+  return h;
+}
+
+const ROUTES=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','review']);
+function navHTML(cur){
+  const link=(id,name,n,flag)=>'<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(name)+'<span class="n">'+(flag?'<span class="flag">●</span> ':'')+(n??'')+'</span></a>';
+  let h='<span class="lbl">Dashboard</span>'+link('overview','Overview','');
+  h+='<span class="lbl">Departments</span>'+DEPTS.map(d=>link(d.id,d.name,deptItems(d.id).length,flagsFor(d.id).some(f=>f.sev==='crit'))).join('');
+  h+='<span class="lbl">More</span>'+link('regions','Regions',state.region?RN[state.region]:'7')+link('handover','Handover 2026',HANDOVER.length)+link('review','Health check',FLAGS.length,true);
+  return h;
+}
+function render(){
+  const raw=(location.hash||'#overview').slice(1);const cur=ROUTES.includes(raw)?raw:'overview';
+  document.getElementById('rail').innerHTML=navHTML(cur);
+  document.getElementById('mnav').innerHTML=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','review']).map(id=>{const d=DEPTS.find(x=>x.id===id);const n=d?d.short:{overview:'Overview',regions:'Regions',handover:'Handover',review:'Health check'}[id];return '<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(n)+'</a>'}).join('');
+  document.getElementById('regions').innerHTML='<button data-reg="" aria-pressed="'+(!state.region)+'">All</button>'+REGIONS.map(r=>'<button data-reg="'+r+'" aria-pressed="'+(state.region===r)+'">'+RN[r]+'</button>').join('');
+  const m=document.getElementById('main');
+  let h;
+  if(state.q.trim())h=viewSearch(state.q.trim());
+  else if(cur==='overview')h=viewOverview();
+  else if(cur==='regions')h=viewRegions();
+  else if(cur==='handover')h=viewHandover();
+  else if(cur==='review')h=viewReview();
+  else h=viewDept(DEPTS.find(d=>d.id===cur));
+  m.innerHTML=h+'<div class="footer">DRAFT · Built from the National Dashboard site and the IV 2023–2026 Drive folder, 4 Nov 2026 · Links open the original files; access depends on your Google account.</div>';
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-reg]');if(!b)return;
+  const r=b.getAttribute('data-reg')||null;state.region=(r&&state.region===r&&b.closest('.regiongrid'))?r:r;
+  try{state.region?localStorage.setItem('ivdash-region',state.region):localStorage.removeItem('ivdash-region')}catch(err){}
+  render();
+});
+document.getElementById('q').addEventListener('input',e=>{state.q=e.target.value;render()});
+window.addEventListener('hashchange',()=>{state.q='';document.getElementById('q').value='';render();window.scrollTo(0,0)});
+render();
+</script>
