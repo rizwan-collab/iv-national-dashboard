@@ -235,7 +235,7 @@ dialog input,dialog select{width:100%}
     <div class="regions" id="regions" role="group" aria-label="Region"></div>
   </div>
 </header>
-<div class="draftband wrap"><div class="in"><b>DRAFT alternative view</b> of the National Dashboard, built from the live site and Drive on 4 Nov 2026. <span class="dlong">Shared for feedback. Links now open the copies in the IV National Hub 2026 (DRAFT) folder, with decks in the new brand. Live forms still open the originals.</span></div></div>
+<div class="draftband wrap"><div class="in"><b>DRAFT view</b> of the National Dashboard. <span class="dlong">Links open the hub copies; live forms open the originals.</span></div></div>
 <div class="wrap"><div class="mobilenav" id="mnav"></div></div>
 <div class="shell wrap">
   <nav class="rail" id="rail" aria-label="Departments"></nav>
@@ -1809,10 +1809,10 @@ function quickActions(){
     ['V','Run a PVA','JK Premises Vulnerability Assessment','https://docs.google.com/forms/d/12mxA0C2oBC5HxOOLnWTijN329PmSzAz_sYlJddIyzUE/viewform'],
     ['◆','Register an event','Regional Event Tracker (S&S)','https://docs.google.com/forms/d/e/1FAIpQLSfBJqjBZokYlmO8qyD82gVfv7_y6z8LBWV1qI3DWZ648CiuDw/viewform'],
     ['L','Log law-enforcement contact','Law Enforcement Engagement form','https://forms.gle/zCw578a2EEcrzzNU8'],
-    ['☰','Leadership workspace','Shared task trackers, checklist, dates · pilot','#work'],
+    ['☰','Leadership workspace','Tasks, checklist, dates','#work'],
     ['@','Find a contact','Directory and org charts, by region','#people'],
-    ['§','Terms of Reference by role','Every IV role’s ToR, readable right here','#tor'],
-    ['✎','Request a dashboard change','Feedback form · tracked under Change requests','#requests']
+    ['§','Terms of Reference by role','All 22 roles','#tor'],
+    ['✎','Request a dashboard change','Feedback form','#requests']
   ];
   return '<div class="grid">'+qa.map(([i,t,s,u])=>{const ext=!u.startsWith('#');return '<a class="qa" href="'+esc(u)+'"'+(ext?' target="_blank" rel="noopener"':'')+'><span class="ic">'+esc(i)+'</span><span><b>'+esc(t)+'</b><small>'+esc(s)+'</small></span></a>'}).join('')+'</div>';
 }
@@ -1820,10 +1820,10 @@ function quickActions(){
 function viewOverview(){
   const total=ALL.length;const crit=FLAGS.filter(f=>f.sev==='crit'&&f.st!=='fixed').length;const warn=FLAGS.filter(f=>f.sev==='warn'&&f.st!=='fixed').length;
   const forms=ALL.filter(x=>kindOf(x.k)==='g').length;
-  let h='<h3>Overview</h3><h1>Everything National IV runs, by department</h1><p class="lede">Seven departments, seven regions and the 2026 handover set in one place. Pick your region at the top to see your own trackers and forms first.</p>';
+  let h='<h3>Overview</h3><h1>National IV at a glance</h1><p class="lede">Pick your region at the top to see your trackers and forms first.</p>';
   h+='<div class="stats"><div class="stat"><b>'+total+'</b><span>resources linked</span></div><div class="stat"><b>7</b><span>departments</span></div><div class="stat"><b>7</b><span>regions with their own trackers</span></div><div class="stat"><b>'+forms+'</b><span>forms to submit</span></div><div class="stat alert"><b>'+(crit+warn)+'</b><span>links to fix ('+crit+' critical)</span></div><div class="stat"><b>'+GAPS.length+'</b><span>Drive items not on the site</span></div></div>';
   h+='<div class="section"><div class="shead"><h2>Quick actions</h2><span class="pill">'+(state.region?'Showing '+RN[state.region]:'All regions')+'</span></div>'+quickActions()+'</div>';
-  h+='<div class="section"><div class="shead"><h2>Departments</h2></div><div class="grid">'+DEPTS.map(d=>{const it=deptItems(d.id);const fl=flagsFor(d.id).length;return '<a class="deptcard" href="#'+d.id+'"><div class="row"><h2 style="font-size:18px">'+esc(d.name)+'</h2><span class="cnt">'+it.length+'</span></div>'+mixBar(it)+'<p>'+esc(d.desc)+'</p>'+(fl?'<span><span class="pill warn">'+fl+' to fix</span></span>':'<span><span class="pill ok">No issues found</span></span>')+'</a>'}).join('')+'<a class="deptcard" href="#handover"><div class="row"><h2 style="font-size:18px">Handover 2026</h2><span class="cnt">'+HANDOVER.length+'</span></div><div class="mix"><i style="width:100%;background:var(--gold)"></i></div><p>The DRAFT handover set for the incoming National leadership, from 12 Dec 2026.</p><span><span class="pill draft">DRAFT</span></span></a><a class="deptcard" href="#tor"><div class="row"><h2 style="font-size:18px">Roles &amp; ToRs</h2><span class="cnt">'+torList().length+'</span></div><div class="mix"><i style="width:100%;background:var(--navy)"></i></div><p>Terms of Reference for every regional and Jamatkhana role. Read them here, one role at a time or all on one page.</p><span><span class="pill draft">DRAFT</span></span></a></div></div>';
+  h+='<div class="section"><div class="shead"><h2>Departments</h2></div><div class="grid">'+DEPTS.map(d=>{const it=deptItems(d.id);const fl=flagsFor(d.id).length;return '<a class="deptcard" href="#'+d.id+'"><div class="row"><h2 style="font-size:18px">'+esc(d.name)+'</h2><span class="cnt">'+it.length+'</span></div>'+mixBar(it)+'<p>'+esc(d.desc)+'</p>'+(fl?'<span><span class="pill warn">'+fl+' to fix</span></span>':'<span><span class="pill ok">No issues found</span></span>')+'</a>'}).join('')+'<a class="deptcard" href="#handover"><div class="row"><h2 style="font-size:18px">Handover 2026</h2><span class="cnt">'+HANDOVER.length+'</span></div><div class="mix"><i style="width:100%;background:var(--gold)"></i></div><p>DRAFT set for the incoming leadership, from 12 Dec.</p><span><span class="pill draft">DRAFT</span></span></a><a class="deptcard" href="#tor"><div class="row"><h2 style="font-size:18px">Role ToRs</h2><span class="cnt">'+torList().length+'</span></div><div class="mix"><i style="width:100%;background:var(--navy)"></i></div><p>Every regional and JK role, readable here.</p><span><span class="pill draft">DRAFT</span></span></a></div></div>';
   h+='<div class="section"><div class="shead"><h2>Needs attention</h2><a href="#review" style="font-size:13px">See the full health check</a></div><div class="tablewrap"><table><thead><tr><th>Issue</th><th>Where</th><th>Fix</th></tr></thead><tbody>'+FLAGS.filter(f=>f.st!=='fixed').map(f=>'<tr><td><span class="sev '+f.sev+'"></span>'+esc(f.issue)+'</td><td>'+esc(f.where)+'</td><td>'+esc(f.fix)+'</td></tr>').join('')+'</tbody></table></div></div>';
   return h;
 }
@@ -1847,7 +1847,7 @@ function viewDept(d){
 }
 
 function viewRegions(){
-  let h='<h3>Regions</h3><h1>Regional view</h1><p class="lede">Each region has its own sign-off forms, security sheets, drill reports and training folders. Pick one to see all of them together.</p>';
+  let h='<h3>Regions</h3><h1>Regions</h1><p class="lede">Pick one to see its forms, sheets and reports together.</p>';
   h+='<div class="regiongrid">'+REGIONS.map(r=>'<button class="regbtn" data-reg="'+r+'" aria-pressed="'+(state.region===r)+'"><b>'+RN[r]+'</b><span style="color:var(--muted);font-size:13px">'+ALL.filter(x=>x.reg===r).length+' resources</span></button>').join('')+'</div>';
   const r=state.region;
   if(!r)return h+'<p class="empty" style="margin-top:18px">No region selected yet.</p>';
@@ -1857,14 +1857,14 @@ function viewRegions(){
 }
 
 function viewHandover(){
-  let h='<h3>Handover 2026</h3><h1>Leadership handover set</h1><p class="lede">Prepared for the incoming National IV leadership, who take over on <b>12 December 2026</b>. Every document is a DRAFT until approved. Restricted documents contain logins or store access; share them only with the people named inside.</p>';
+  let h='<h3>Handover 2026</h3><h1>Handover set</h1><p class="lede">DRAFT, for the leadership taking over on <b>12 Dec</b>. Restricted docs: share only with the people named inside.</p>';
   h+='<div class="list">'+HANDOVER.map(x=>resCard(Object.assign({draft:1},x))).join('')+'</div>';
   h+='<div class="callout"><b>Key date:</b> 12 Dec 2026, the incoming National IV leadership takes over. Change the app and store passwords on the day.</div>';
   return h;
 }
 
 function viewReview(){
-  let h='<h3>Health check</h3><h1>What to fix before handover</h1><p class="lede">Found by checking every link on the current site against the Drive on 4 Nov 2026. Decisions recorded 4–5 Nov 2026.</p>';
+  let h='<h3>Health check</h3><h1>To fix</h1><p class="lede">Found by checking every link on the current site against the Drive on 4 Nov 2026. Decisions recorded 4–5 Nov 2026.</p>';
   const OP=FLAGS.filter(f=>f.st!=='fixed');const c=OP.filter(f=>f.sev==='crit').length,w=OP.filter(f=>f.sev==='warn').length,i=FLAGS.filter(f=>f.st==='fixed').length;
   h+='<div class="stats"><div class="stat alert"><b>'+c+'</b><span>critical open</span></div><div class="stat"><b style="color:var(--warn)">'+w+'</b><span>should fix (open)</span></div><div class="stat"><b>'+i+'</b><span>fixed</span></div><div class="stat"><b>'+GAPS.length+'</b><span>Drive items missing from the site</span></div></div>';
   h+='<div class="section"><div class="shead"><h2>Link and content issues</h2></div><div class="tablewrap"><table><thead><tr><th>Severity</th><th>Issue</th><th>Where</th><th>Fix</th></tr></thead><tbody>'+FLAGS.map(f=>'<tr><td><span class="sev '+f.sev+'"></span>'+({crit:'Critical',warn:'Should fix',info:'Tidy-up'}[f.sev])+'<br><span class="pill '+(f.st==='fixed'?'ok':'warn')+'">'+(f.st==='fixed'?'Fixed':'Open')+'</span></td><td>'+esc(f.issue)+'</td><td>'+esc(f.where)+'</td><td>'+esc(f.fix)+'</td></tr>').join('')+'</tbody></table></div></div>';
@@ -1900,7 +1900,7 @@ function loadCR(){
 }
 function viewRequests(){
   loadCR();
-  let h='<h3>Feedback</h3><h1>Change requests</h1><p class="lede">Spotted something to fix, add or reword? Send it here. Every request gets an ID and a status, and you can follow it below until it is done.</p>';
+  let h='<h3>Feedback</h3><h1>Change requests</h1><p class="lede">Send a fix, addition or rewording. Each request gets an ID and status.</p>';
   h+='<p><a class="qa" style="display:inline-flex;max-width:340px" href="'+esc(CR.form)+'" target="_blank" rel="noopener"><span class="ic">+</span><span><b>Request a change</b><small>Short form · name, where, what, screenshot link, comments</small></span></a></p>';
   if(CR.err){return h+'<p class="empty">'+esc(CR.err)+' <a href="https://docs.google.com/spreadsheets/d/'+CR.sheet+'" target="_blank" rel="noopener">Open the tracker</a>.</p>'}
   if(!CR.rows){return h+'<p class="empty">Loading requests…</p>'}
@@ -1984,7 +1984,7 @@ function addBtn(t,extra){return STORE.err==='off'?'':'<button class="btn" data-a
 function editBtn(x){return STORE.err==='off'?'':'<button class="btn ghost sm" data-act="edit" data-id="'+esc(x.id)+'">Edit</button>'}
 function viewWork(sub){
   WS.tab=sub||'tasks';loadStore();
-  let h='<h3>Leadership workspace · Pilot</h3><h1>Working together through the handover</h1><p class="lede">Shared trackers for the outgoing and incoming National and Regional leadership. Anyone with the link can add and update items. This is a pilot: the next leadership can keep it or remove it.</p>';
+  let h='<h3>Leadership workspace · Pilot</h3><h1>Handover workspace</h1><p class="lede">Shared trackers for outgoing and incoming leadership. Anyone with the link can edit. Pilot.</p>';
   h+=storeBar()+wsTabs();
   if(STORE.err&&STORE.err!=='off')return h+'<p class="empty">'+esc(STORE.err)+'</p>';
   if(STORE.err!=='off'&&!STORE.items)return h+'<p class="empty">Loading…</p>';
@@ -2107,8 +2107,8 @@ function torActs(r){const d=torDoc(r);return '<div class="tact">'+(d?'<a class="
 function viewTor(sub){
   loadStore();
   const L=torList(),m=torMeta();
-  const src=L===TOR_SNAP?'Showing the copy saved with this page; the latest version loads when the save engine is reachable.':(m&&m.synced?'Last refreshed from the Handbook '+esc(new Date(m.synced).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}))+'.':'');
-  let h='<h3>Roles</h3><h1>Terms of Reference by role</h1><p class="lede">DRAFT ToRs for all '+L.length+' IV leadership roles, taken word for word from the IV Handbook &amp; Terms of Reference 2026. To change one, edit the Handbook; this page and the Google Docs update daily. '+src+'</p>';
+  const src=L===TOR_SNAP?'Saved copy.':(m&&m.synced?'Updated '+esc(new Date(m.synced).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}))+'.':'');
+  let h='<h3>Roles</h3><h1>Role ToRs</h1><p class="lede">DRAFT. From the 2026 Handbook, updated daily. To change a ToR, edit the Handbook.'+(src?' <span style="color:var(--muted);font-size:13.5px">'+src+'</span>':'')+'</p>';
   h+='<div class="tabs" role="tablist"><a role="tab" href="#tor" aria-selected="'+(sub!=='all')+'">By role</a><a role="tab" href="#tor/all" aria-selected="'+(sub==='all')+'">All on one page</a></div>';
   if(sub&&sub!=='all'){
     const r=L.find(x=>torSlug(x)===sub);
@@ -2144,7 +2144,7 @@ function person(o){
 function peopleTabs(){return '<div class="tabs" role="tablist"><a role="tab" href="#people/directory" aria-selected="'+(WS.ptab==='directory')+'">Directory</a><a role="tab" href="#people/org" aria-selected="'+(WS.ptab==='org')+'">Org structure</a></div>'}
 function viewPeople(sub){
   WS.ptab=sub||'directory';
-  let h='<h3>People</h3><h1>'+(WS.ptab==='org'?'Who reports to whom':'Directory 2026–27')+'</h1><p class="lede">From the 2026–2027 directory. Contact details are for IV leadership use only, so please don’t forward this page outside the team. Dates of birth, addresses and ages are not shown here.</p>'+peopleTabs();
+  let h='<h3>People</h3><h1>'+(WS.ptab==='org'?'Who reports to whom':'Directory 2026–27')+'</h1><p class="lede">For IV leadership only. Please don’t forward.</p>'+peopleTabs();
   return h+(WS.ptab==='org'?viewOrg():viewDir());
 }
 function viewDir(){
@@ -2192,9 +2192,9 @@ const ROUTES=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','revie
 function navHTML(cur){
   const link=(id,name,n,flag)=>'<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(name)+'<span class="n">'+(flag?'<span class="flag">●</span> ':'')+(n??'')+'</span></a>';
   let h='<span class="lbl">Dashboard</span>'+link('overview','Overview','');
-  h+='<span class="lbl">Departments</span>'+DEPTS.map(d=>link(d.id,d.name,deptItems(d.id).length,flagsFor(d.id).some(f=>f.sev==='crit'))).join('');
-  h+='<span class="lbl">Collaborate · pilot</span>'+link('work','Leadership workspace',STORE.items?items('task').filter(x=>x.status!=='Done').length:'')+link('people','Directory & org',DIR.filter(o=>o.name!=='(vacant)').length)+link('tor','Roles & ToRs',torList().length);
-  h+='<span class="lbl">More</span>'+link('regions','Regions',state.region?RN[state.region]:'7')+link('handover','Handover 2026',HANDOVER.length)+link('review','Health check',FLAGS.filter(f=>f.st!=='fixed').length,true)+link('requests','Change requests',CR.rows?CR.rows.filter(x=>(x['Status']||'New')!=='Done'&&x['Status']!=="Won't do").length:'');
+  h+='<span class="lbl">Departments</span>'+DEPTS.map(d=>link(d.id,({dmt:'DMT',admin:'Admin'})[d.id]||d.name,deptItems(d.id).length,flagsFor(d.id).some(f=>f.sev==='crit'))).join('');
+  h+='<span class="lbl">Collaborate · pilot</span>'+link('work','Workspace',STORE.items?items('task').filter(x=>x.status!=='Done').length:'')+link('people','Directory',DIR.filter(o=>o.name!=='(vacant)').length)+link('tor','ToRs',torList().length);
+  h+='<span class="lbl">More</span>'+link('regions','Regions',state.region?RN[state.region]:'7')+link('handover','Handover',HANDOVER.length)+link('review','Health check',FLAGS.filter(f=>f.st!=='fixed').length,true)+link('requests','Change requests',CR.rows?CR.rows.filter(x=>(x['Status']||'New')!=='Done'&&x['Status']!=="Won't do").length:'');
   return h;
 }
 function render(){
