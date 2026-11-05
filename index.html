@@ -1214,8 +1214,8 @@ const DATA = {
 "s": "Workstream Directory 2023-2026",
 "items": [
 {
-"t": "National/Regional Team Directory",
-"k": "s:1gZpF6LOKRQbEEepkT0rgJ4NHaJ1E3qg9"
+"t": "National/Regional Team Directory 2026-27 (on this dashboard)",
+"k": "h:people"
 },
 {
 "t": "DMT Directory 2024-25",
@@ -1685,7 +1685,7 @@ const FLAGS=[
  {sev:'info',st:'fixed',d:'iv',where:'Ismaili Volunteer',issue:'Handover set was not linked.',fix:'Done: handover docs moved into the hub ("00 Handover 2026").'}
 ];
 
-const TYPE={d:['doc','DOC'],s:['sheet','SHEET'],p:['slides','DECK'],F:['folder','FOLDER'],f:['pdf','FILE'],g:['form','FORM'],y:['video','VIDEO'],w:['web','WEB'],soon:['soon','SOON'],page:['web','PAGE']};
+const TYPE={d:['doc','DOC'],s:['sheet','SHEET'],p:['slides','DECK'],F:['folder','FOLDER'],f:['pdf','FILE'],g:['form','FORM'],y:['video','VIDEO'],w:['web','WEB'],soon:['soon','SOON'],page:['web','PAGE'],h:['web','PAGE']};
 const MIXC={doc:'#3B6FB6',sheet:'#2E8A57',slides:'#C98A1B',folder:'#6B7686',form:'#7A4FB0',pdf:'#B3473E',web:'#0B2A4A',video:'#C0392B',soon:'#A8A39A'};
 function url(k){
   const i=k.indexOf(':');const c=k.slice(0,i),id=k.slice(i+1);
@@ -1699,6 +1699,7 @@ function url(k){
     case 'y':return 'https://www.youtube.com/watch?v='+id;
     case 'w':return 'https://'+id;
     case 'page':return '#regions';
+    case 'h':return '#'+id;
     default:return null;
   }
 }
@@ -1758,7 +1759,7 @@ function resCard(x){
   if(x.restricted)pills.push('<span class="pill crit">Restricted</span>');
   if(x.note)pills.push('<span class="pill">'+esc(x.note)+'</span>');
   const inner='<span class="type ty-'+cls+'">'+lab+'</span><span style="min-width:0"><span class="t">'+esc(x.t)+'</span>'+(pills.length?'<span class="m">'+pills.join('')+'</span>':'')+(x.why?'<span class="m" style="color:var(--muted);font-size:13px">'+esc(x.why)+'</span>':'')+'</span>';
-  return u?'<a class="res" href="'+esc(u)+'" target="_blank" rel="noopener">'+inner+'</a>':'<div class="res" aria-disabled="true">'+inner+'</div>';
+  return u?'<a class="res" href="'+esc(u)+'"'+(u.charAt(0)==='#'?'':' target="_blank" rel="noopener"')+'>'+inner+'</a>':'<div class="res" aria-disabled="true">'+inner+'</div>';
 }
 function inRegion(x){return !state.region||!x.reg||x.reg===state.region}
 function deptItems(id){return ALL.filter(x=>x.dept===id)}
