@@ -1704,6 +1704,7 @@ function url(k){
   }
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const NOACCESS=["1AjiujOKagAxR801JBqksXKAashp8JXDN8sB_Ht9Pyi0", "1Bi9N79aatD3Cadb03EVdsEsq9Y_qv16I", "1G6SfcAfFCC6jrY6t7_8Pksu9EFCqh-C3xP4TnBhLAfE", "1H319iVWlgE7DmyT1GiWW4e_gC8MCC2pl", "1Pb2UYUYnszTs7XnWdeEcy5flozEOJ36H", "1pGKY_sjucfrP9LGk6VBpy6qw1vAmrIbq"];
 const kindOf=k=>k==='soon'?'soon':k.slice(0,k.indexOf(':'));
 
 // Build flat index
@@ -1735,6 +1736,7 @@ const DUP={};ALL.forEach(x=>{if(x.k!=='soon'&&!x.regional){DUP[x.dept+x.k]=(DUP[
 ALL.forEach(x=>{
   if(/Torando/.test(x.t))x.t=x.t.replace('Torando','Tornado');
   if(x.k==='soon')x.soon=1;
+  if(NOACCESS.some(i=>x.k.endsWith(':'+i)))x.noaccess=1;
   if(/\[Pending\]/.test(x.t))x.pending=1;
   if(x.t==='New Uniform Items Ordering Form'){x.t='IV Uniform Store (leads only)';x.note='Shopify'}
   if(x.t==='Term of Reference (TORs)')x.old=1;
@@ -1757,6 +1759,7 @@ function resCard(x){
   if(x.old)pills.push('<span class="pill warn">2019 version</span>');
   if(x.draft)pills.push('<span class="pill draft">DRAFT</span>');
   if(x.restricted)pills.push('<span class="pill crit">Restricted</span>');
+  if(x.noaccess)pills.push('<span class="pill crit" title="The file owner has not shared this file. Ask them for access.">Access needed</span>');
   if(x.note)pills.push('<span class="pill">'+esc(x.note)+'</span>');
   const inner='<span class="type ty-'+cls+'">'+lab+'</span><span style="min-width:0"><span class="t">'+esc(x.t)+'</span>'+(pills.length?'<span class="m">'+pills.join('')+'</span>':'')+(x.why?'<span class="m" style="color:var(--muted);font-size:13px">'+esc(x.why)+'</span>':'')+'</span>';
   return u?'<a class="res" href="'+esc(u)+'"'+(u.charAt(0)==='#'?'':' target="_blank" rel="noopener"')+'>'+inner+'</a>':'<div class="res" aria-disabled="true">'+inner+'</div>';
