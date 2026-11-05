@@ -1674,7 +1674,8 @@ function quickActions(){
     ['E','Log a Shakeout drill','Earthquake drill completion report','https://docs.google.com/forms/d/e/1FAIpQLSes4_2ZlM4qTFTJO9UtAraGOHe_ZcOhUOK-eaaeFBBrxDfjDw/viewform'],
     ['V','Run a PVA','JK Premises Vulnerability Assessment','https://docs.google.com/forms/d/12mxA0C2oBC5HxOOLnWTijN329PmSzAz_sYlJddIyzUE/viewform'],
     ['◆','Register an event','Regional Event Tracker (S&S)','https://docs.google.com/forms/d/e/1FAIpQLSfBJqjBZokYlmO8qyD82gVfv7_y6z8LBWV1qI3DWZ648CiuDw/viewform'],
-    ['L','Log law-enforcement contact','Law Enforcement Engagement form','https://forms.gle/zCw578a2EEcrzzNU8']
+    ['L','Log law-enforcement contact','Law Enforcement Engagement form','https://forms.gle/zCw578a2EEcrzzNU8'],
+    ['✎','Request a dashboard change','Feedback form · tracked under Change requests','#requests']
   ];
   return '<div class="grid">'+qa.map(([i,t,s,u])=>{const ext=!u.startsWith('#');return '<a class="qa" href="'+esc(u)+'"'+(ext?' target="_blank" rel="noopener"':'')+'><span class="ic">'+esc(i)+'</span><span><b>'+esc(t)+'</b><small>'+esc(s)+'</small></span></a>'}).join('')+'</div>';
 }
@@ -1746,18 +1747,50 @@ function viewSearch(q){
   return h;
 }
 
-const ROUTES=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','review']);
+
+// Change requests (Google Form -> tracker sheet, read live via gviz JSONP)
+const CR={form:'https://docs.google.com/forms/d/e/1FAIpQLSdK233qW3Jh8EMfVB7anvetc50PS1CL3RPu5r4vIw0YF4UsHA/viewform',sheet:'1sSis7WhzDyc0rYUbgnfO2_NKqek6b3HuMBPYchpfKUM',rows:null,err:null,loading:false};
+function loadCR(){
+  if(CR.loading||CR.rows)return;CR.loading=true;
+  window.__crcb=function(r){CR.loading=false;try{
+    const cols=r.table.cols.map(c=>(c.label||'').trim());
+    CR.rows=r.table.rows.map(rw=>{const o={};rw.c.forEach((c,i)=>o[cols[i]]=c?(c.f||c.v):'');return o}).filter(o=>o['What should change?']);
+  }catch(e){CR.err='Could not read the tracker.'}render()};
+  const s=document.createElement('script');
+  s.src='https://docs.google.com/spreadsheets/d/'+CR.sheet+'/gviz/tq?tqx=responseHandler:__crcb&headers=1&sheet=Requests&t='+Date.now();
+  s.onerror=()=>{CR.loading=false;CR.err='Could not reach the tracker sheet.';render()};
+  document.head.appendChild(s);
+}
+function viewRequests(){
+  loadCR();
+  let h='<h3>Feedback</h3><h1>Change requests</h1><p class="lede">Spotted something to fix, add or reword? Send it here. Every request gets an ID and a status, and you can follow it below until it is done.</p>';
+  h+='<p><a class="qa" style="display:inline-flex;max-width:340px" href="'+esc(CR.form)+'" target="_blank" rel="noopener"><span class="ic">+</span><span><b>Request a change</b><small>Short form · name, where, what, screenshot link, comments</small></span></a></p>';
+  if(CR.err){return h+'<p class="empty">'+esc(CR.err)+' <a href="https://docs.google.com/spreadsheets/d/'+CR.sheet+'" target="_blank" rel="noopener">Open the tracker</a>.</p>'}
+  if(!CR.rows){return h+'<p class="empty">Loading requests…</p>'}
+  const R=CR.rows,st=x=>x['Status']||'New';
+  const cnt=k=>R.filter(x=>st(x)===k).length;
+  h+='<div class="stats"><div class="stat"><b>'+R.length+'</b><span>requests</span></div><div class="stat alert"><b>'+cnt('New')+'</b><span>new</span></div><div class="stat"><b>'+(cnt('In progress')+cnt('Needs decision'))+'</b><span>in progress / needs decision</span></div><div class="stat"><b>'+cnt('Done')+'</b><span>done</span></div></div>';
+  if(!R.length)return h+'<p class="empty">No requests yet. Use the button above to send the first one.</p>';
+  const pc={'New':'warn','In progress':'draft','Needs decision':'crit','Done':'ok',"Won't do":''};
+  h+='<div class="section"><div class="tablewrap"><table><thead><tr><th>ID</th><th>Request</th><th>Where</th><th>From</th><th>Priority</th><th>Status</th><th>Notes</th></tr></thead><tbody>'+R.slice().reverse().map(x=>{
+    const extra=[x['Link or file name (optional)'],x['Screenshot link (optional)']].filter(Boolean).map(v=>/^https?:/.test(v)?'<a href="'+esc(v)+'" target="_blank" rel="noopener">'+(v===x['Screenshot link (optional)']?'Screenshot':'Link')+'</a>':esc(v)).join(' · ');
+    const com=x['Comments (optional)']?'<br><small style="color:var(--muted)">'+esc(x['Comments (optional)'])+'</small>':'';
+    return '<tr><td>'+esc(x['ID']||'')+'</td><td>'+esc(x['What should change?'])+com+(extra?'<br><small>'+extra+'</small>':'')+'</td><td>'+esc(x['Where is the change?']||'')+'</td><td>'+esc(x['Your name']||'')+'<br><small style="color:var(--muted)">'+esc(x['Timestamp']||'')+'</small></td><td>'+esc(x['Priority']||'')+'</td><td><span class="pill '+(pc[st(x)]||'')+'">'+esc(st(x))+'</span></td><td>'+esc(x['Notes / resolution']||'')+'</td></tr>'}).join('')+'</tbody></table></div></div>';
+  h+='<p class="lede" style="font-size:13px">Statuses are updated by the National IV team in the tracker sheet. Refresh this page to see the latest.</p>';
+  return h;
+}
+const ROUTES=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','review','requests']);
 function navHTML(cur){
   const link=(id,name,n,flag)=>'<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(name)+'<span class="n">'+(flag?'<span class="flag">●</span> ':'')+(n??'')+'</span></a>';
   let h='<span class="lbl">Dashboard</span>'+link('overview','Overview','');
   h+='<span class="lbl">Departments</span>'+DEPTS.map(d=>link(d.id,d.name,deptItems(d.id).length,flagsFor(d.id).some(f=>f.sev==='crit'))).join('');
-  h+='<span class="lbl">More</span>'+link('regions','Regions',state.region?RN[state.region]:'7')+link('handover','Handover 2026',HANDOVER.length)+link('review','Health check',FLAGS.length,true);
+  h+='<span class="lbl">More</span>'+link('regions','Regions',state.region?RN[state.region]:'7')+link('handover','Handover 2026',HANDOVER.length)+link('review','Health check',FLAGS.filter(f=>f.st!=='fixed').length,true)+link('requests','Change requests',CR.rows?CR.rows.filter(x=>(x['Status']||'New')!=='Done'&&x['Status']!=="Won't do").length:'');
   return h;
 }
 function render(){
   const raw=(location.hash||'#overview').slice(1);const cur=ROUTES.includes(raw)?raw:'overview';
   document.getElementById('rail').innerHTML=navHTML(cur);
-  document.getElementById('mnav').innerHTML=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','review']).map(id=>{const d=DEPTS.find(x=>x.id===id);const n=d?d.short:{overview:'Overview',regions:'Regions',handover:'Handover',review:'Health check'}[id];return '<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(n)+'</a>'}).join('');
+  document.getElementById('mnav').innerHTML=['overview'].concat(DEPTS.map(d=>d.id),['regions','handover','review','requests']).map(id=>{const d=DEPTS.find(x=>x.id===id);const n=d?d.short:{overview:'Overview',regions:'Regions',handover:'Handover',review:'Health check',requests:'Requests'}[id];return '<a href="#'+id+'"'+(cur===id?' aria-current="page"':'')+'>'+esc(n)+'</a>'}).join('');
   document.getElementById('regions').innerHTML='<button data-reg="" aria-pressed="'+(!state.region)+'">All</button>'+REGIONS.map(r=>'<button data-reg="'+r+'" aria-pressed="'+(state.region===r)+'">'+RN[r]+'</button>').join('');
   const m=document.getElementById('main');
   let h;
@@ -1766,6 +1799,7 @@ function render(){
   else if(cur==='regions')h=viewRegions();
   else if(cur==='handover')h=viewHandover();
   else if(cur==='review')h=viewReview();
+  else if(cur==='requests')h=viewRequests();
   else h=viewDept(DEPTS.find(d=>d.id===cur));
   m.innerHTML=h+'<div class="footer">DRAFT · Built from the National Dashboard site and the IV 2023–2026 Drive folder, 4 Nov 2026 · Links open the original files; access depends on your Google account.</div>';
 }
